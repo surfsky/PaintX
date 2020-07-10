@@ -1,0 +1,152 @@
+优化
+    简化选择逻辑，点击选择某个形状并直接操作
+    形状间的锚点链接，连接后，拖动相关形状，连接线会自动调整
+
+基础形状
+    /椭圆
+    三角
+    矩形：合并圆角矩形
+    文字
+    直线
+        可链接锚点
+        可设置多段，并设置每段的
+            线帽形状和大小
+            起止粗细
+            可任意增加点
+    曲线
+        可链接锚点
+        可设置多段，并设置每段的
+            线帽形状和大小
+            起止粗细
+            可任意增加点
+
+图层
+    /图层选择
+    图层层次
+    编组解组
+
+属性
+    /位置
+    /边框
+    /旋转
+    /填充
+    渐变
+    半透明
+    变形（透视？）
+
+辅助
+    对齐
+    参考线
+    网格线
+    吸附
+    放缩
+    拷贝粘贴
+    撤销重做 
+
+----------------------------------------------------
+Files
+----------------------------------------------------
+/Core
+/Shapes
+ColorSelector
+DraggableHotSpot
+Enums
+FormAbout
+FormMain
+
+
+2020-07-10
+
+    /Change to net framework 4.6.2
+
+重构
+    /Rename to XPaint
+    /DrawableObject -> Shape
+    /重构CursorHolder
+    /CursorsHolder -> AppCursors
+    /EPCanvas -> XCanvas
+    /EPKernal -> XKernal
+    /EPConsts -> XConsts
+    /删除ShapeHelper
+    /删除ScaleHelper
+    /删除XKernel.ShapesInfoList
+    修正矩形的属性控件组，线段才有起止帽
+    统一方法命名方式，都用大写开头
+    简化XKernel的事件处理，去除eventHandleList逻辑
+    slected shape
+        /给shape增加ID属性，用guid或snowflakeid
+        /给shape增加selected属性
+        /简化XKernel.SelectedShapes/id/info 等属性，统一掉
+        /简化SelectIDs -> SelectedShapes
+        /点击图层，对应的图形被选中
+        /新增图层，对应的层被选中
+        调整层次（考虑用双向列表来容纳图层列表）
+
+------------------------------------------------
+废弃
+------------------------------------------------
+            //string[] s = _canvas.Kernel.ShapesInfoList;
+            //lbShapes.Items.Clear();
+            //if (s != null && s.Length > 0)
+            //    lbShapes.Items.AddRange(s);
+
+            //_canvas.Kernel.SetTool(ToolType.ShapeSelect);
+            //this.SelectTool(6);
+    
+        public string[] ShapesInfoList
+        {
+            get
+            {
+                if (Shapes.Count == 0)
+                    return new string[] { };
+
+                string[] list = new string[Shapes.Count];
+                for (int i = 0; i < Shapes.Count; i++)
+                {
+                    list[i] = i.ToString() + ": " + Shapes[i].ReadableName;
+                }
+                return list;
+            }
+        }
+
+            /*
+            List<byte[]> res = new List<byte[]>();
+            res.Add(Properties.Resources.pan);
+            res.Add(Properties.Resources.tool_line);
+            res.Add(Properties.Resources.tool_rect);
+            res.Add(Properties.Resources.tool_ellipse);
+            res.Add(Properties.Resources.rotate);
+            res.Add(Properties.Resources.size_0);
+            res.Add(Properties.Resources.size_90);
+            res.Add(Properties.Resources.select);
+            res.Add(Properties.Resources.select2);
+
+            List<Cursor> cursors = new List<Cursor>();
+            for (int i = 0; i < res.Count; i++)
+            {
+                using (var ms = new MemoryStream(res[i]))
+                {
+                    cursors.Add(new Cursor(ms));
+                }
+            }
+
+            _pan = cursors[0];
+            _line = cursors[1];
+            _rect = cursors[2];
+            _ellipse = cursors[3];
+            _rotate = cursors[4];
+            _size_0 = cursors[5];
+            _size_90 = cursors[6];
+            _select = cursors[7];
+            _select2 = cursors[8];
+            */
+
+            //_pan = new Cursor(typeof(Cursor), "pan");
+            //_line = new Cursor(typeof(Cursor), "tool_line");
+            //_rect = new Cursor(typeof(Cursor), "tool_rect");
+            //_ellipse = new Cursor(typeof(Cursor), "tool_ellipse");
+            //_rotate = new Cursor(typeof(Cursor), "rotate");
+            //_size_0 = new Cursor(typeof(Cursor), "size_0");
+            //_size_90 = new Cursor(typeof(Cursor), "size_90");
+            //_select = new Cursor(typeof(Cursor), "select");
+            //_select2 = new Cursor(typeof(Cursor), "select2");

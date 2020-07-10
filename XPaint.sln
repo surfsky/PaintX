@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XPaint", "XPaint\XPaint.csproj", "{57CDE75A-9496-4334-8F4B-ECE29DA316FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8F8E4888-DC25-45E6-9737-ACE37B33F019}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+		task.txt = task.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{57CDE75A-9496-4334-8F4B-ECE29DA316FD}.Debug|x86.ActiveCfg = Debug|x86
+		{57CDE75A-9496-4334-8F4B-ECE29DA316FD}.Debug|x86.Build.0 = Debug|x86
+		{57CDE75A-9496-4334-8F4B-ECE29DA316FD}.Release|x86.ActiveCfg = Release|x86
+		{57CDE75A-9496-4334-8F4B-ECE29DA316FD}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AD191772-6F59-4A46-8656-B3B15B5916C9}
+	EndGlobalSection
+EndGlobal

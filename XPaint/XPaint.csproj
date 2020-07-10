@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{57CDE75A-9496-4334-8F4B-ECE29DA316FD}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XPaint</RootNamespace>
+    <AssemblyName>XPaint</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ColorSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ColorSelector.Designer.cs">
+      <DependentUpon>ColorSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\SnowFlakeID.cs" />
+    <Compile Include="Components\XCursors.cs" />
+    <Compile Include="Components\XCanvas.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Components\XConsts.cs" />
+    <Compile Include="Components\XKernel.cs" />
+    <Compile Include="FormAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAbout.Designer.cs">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Components\GeometricHelper.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Components\Shapes\LineCap\CircleCap.cs" />
+    <Compile Include="Components\Shapes\LineCap\LineArrowCap.cs" />
+    <Compile Include="Components\Shapes\LineCap\RectangleCap.cs" />
+    <Compile Include="Components\Shapes\LineCap\SharpArrowCap.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Components\Shapes\BrokenLine.cs" />
+    <Compile Include="Components\Shapes\Shape.cs" />
+    <Compile Include="Components\Shapes\EllipseShape.cs" />
+    <Compile Include="Components\Shapes\FillableShape.cs" />
+    <Compile Include="Components\Shapes\Arrow.cs" />
+    <Compile Include="Components\Shapes\LineShape.cs" />
+    <Compile Include="Components\Shapes\RectShape.cs" />
+    <Compile Include="Components\Shapes\RoundedRectShape.cs" />
+    <Compile Include="Components\Shapes\StrokableShape.cs" />
+    <Compile Include="Components\Shapes\Property\BaseProperty.cs" />
+    <Compile Include="Components\Shapes\Property\FillableProperty.cs" />
+    <Compile Include="Components\Shapes\Property\ArrowProperty.cs" />
+    <Compile Include="Components\Shapes\Property\NotDrawableProperty.cs" />
+    <Compile Include="Components\Shapes\Property\PropertyCollector.cs" />
+    <Compile Include="Components\Shapes\Property\RoundedRectProperty.cs" />
+    <Compile Include="Components\Shapes\Property\StrokableProperty.cs" />
+    <Compile Include="DraggableHotSpot.cs" />
+    <EmbeddedResource Include="ColorSelector.resx">
+      <DependentUpon>ColorSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAbout.resx">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Resources\pan.cur" />
+    <None Include="Resources\rotate.cur" />
+    <None Include="Resources\select.cur" />
+    <None Include="Resources\select2.cur" />
+    <None Include="Resources\size_0.cur" />
+    <None Include="Resources\size_90.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tool_ellipse.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tool_line.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tool_rect.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\anti_false.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\anti_true.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\normal_arrow_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\normal_arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sharp_arrow2_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sharp_arrow2_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sharp_arrow_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sharp_arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\line_arrow_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\line_arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_circle_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_circle_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_rect_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_rect_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_round_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_round_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_square_left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cap_square_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dash_dot_dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dash2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dash-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\solid.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

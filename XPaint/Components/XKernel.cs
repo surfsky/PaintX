@@ -7,15 +7,23 @@ using System.ComponentModel;
 
 namespace XPaint
 {
-    public class XKernel
+    public partial class XKernel
     {
+        private enum SelectToolsLocation
+        {
+            Blank,
+            UnselectedShape,
+            SelectedShape,
+            ShapeDraggableHotSpot
+        }
+
         //--------------------------------------------
         // 成员
         //--------------------------------------------
         private EventHandlerList _events;
         private Bitmap finalBitmap;
         private Graphics graphics;
-        private ToolCursorType cursorType;
+        private CursorType cursorType;
         private SelectToolsLocation selectToolLoc;
         private bool isInSelecting;
 
@@ -150,7 +158,7 @@ namespace XPaint
             if (SelectedShapesCount == 1)
             {
                 int i = selectedIds[0];
-                DraggableHotSpot[] hs = Shapes[i].DraggableHotSpots;
+                HotSpot[] hs = Shapes[i].DraggableHotSpots;
                 for (int j = 0; j < hs.Length; j++)
                 {
                     if (hs[j].Visible && hs[j].Rect.Contains(pos))
@@ -177,7 +185,7 @@ namespace XPaint
                         selectToolLoc = SelectToolsLocation.UnselectedShape;
                         ClearSelectedShapes(false);
                         SelectShape(index);
-                        CursorType = ToolCursorType.ShapeSelect_Move;
+                        CursorType = CursorType.SelectMove;
                     }
                     lastPt = pos;
                 }
@@ -217,12 +225,12 @@ namespace XPaint
             }
             else
             {
-                ToolCursorType type = ToolCursorType.ShapeSelect_Default;
+                CursorType type = CursorType.SelectDefault;
                 if (SelectedShapesCount == 1)
                 {
                     int index = selectedIds[0];
                     bool inHotSpot = false;
-                    DraggableHotSpot[] hs = Shapes[index].DraggableHotSpots;
+                    HotSpot[] hs = Shapes[index].DraggableHotSpots;
                     
                     for (int j = 0; j < hs.Length; j++)
                     {
@@ -231,13 +239,13 @@ namespace XPaint
                             switch (hs[j].Type)
                             {
                                 case HotSpotType.LineVertex:
-                                    type = ToolCursorType.ShapeSelect_DragLineVertex;
+                                    type = CursorType.SelectDragVertex;
                                     break;
                                 case HotSpotType.RotatingRect:
-                                    type = ToolCursorType.ShapeSelect_Rotate;
+                                    type = CursorType.SelectRotate;
                                     break;
                                 case HotSpotType.AnchorToScale:
-                                    type = ToolCursorType.ShapeSelect_Scale;
+                                    type = CursorType.SelectScale;
                                     break;
                             }
                             inHotSpot = true;
@@ -247,7 +255,7 @@ namespace XPaint
 
                     if (!inHotSpot && Shapes[index].ContainsPoint(pos))
                     {
-                        type = ToolCursorType.ShapeSelect_Move;
+                        type = CursorType.SelectMove;
                     }
                 }
                 else if (SelectedShapesCount > 1)
@@ -257,7 +265,7 @@ namespace XPaint
                     {
                         if (Shapes[selectedIds[i]].ContainsPoint(pos))
                         {
-                            type = ToolCursorType.ShapeSelect_Move;
+                            type = CursorType.SelectMove;
                             break;
                         }
                     }
@@ -304,51 +312,51 @@ namespace XPaint
             }
         }
 
-        private void SetShapeProperty(ShapePropertyValueType type, object value)
+        private void SetShapeProperty(ShapeValueType type, object value)
         {
             switch (type)
             {
-                case ShapePropertyValueType.Antialias:
+                case ShapeValueType.Antialias:
                     properties.Antialias = (bool)value;
                     break;
 
-                case ShapePropertyValueType.ArrowSize:
-                    properties.IndicatorLineSize = (ArrowSize)value;
+                case ShapeValueType.ArrowSize:
+                    properties.ArrowSize = (ArrowSize)value;
                     break;                    
 
-                case ShapePropertyValueType.StrokeWidth:
+                case ShapeValueType.StrokeWidth:
                     properties.PenWidth = (float)value;
                     break;
-                case ShapePropertyValueType.StrokeColor:
+                case ShapeValueType.StrokeColor:
                     properties.StrokeColor = (Color)value;
                     break;
-                case ShapePropertyValueType.StartLineCap:
+                case ShapeValueType.StartLineCap:
                     properties.StartLineCap = (LineCapType)value;
                     break;
-                case ShapePropertyValueType.EndLineCap:
+                case ShapeValueType.EndLineCap:
                     properties.EndLineCap = (LineCapType)value;
                     break;
-                case ShapePropertyValueType.LineDash:
-                    properties.LineDash = (LineDashType)value;
+                case ShapeValueType.LineDash:
+                    properties.LineDash = (LineType)value;
                     break;
-                case ShapePropertyValueType.LineJoin:
+                case ShapeValueType.LineJoin:
                     properties.HowLineJoin = (LineJoin)value;
                     break;
-                case ShapePropertyValueType.PenAlignment:
+                case ShapeValueType.PenAlignment:
                     properties.PenAlign = (PenAlignment)value;
                     break;
 
-                case ShapePropertyValueType.FillColor:
+                case ShapeValueType.FillColor:
                     properties.FillColor = (Color)value;
                     break;
-                case ShapePropertyValueType.FillType:
-                    properties.FillType = (ShapeFillType)value;
+                case ShapeValueType.FillType:
+                    properties.FillType = (FillType)value;
                     break;
-                case ShapePropertyValueType.PaintType:
-                    properties.PaintType = (ShapePaintType)value;
+                case ShapeValueType.PaintType:
+                    properties.PaintType = (PaintType)value;
                     break;
 
-                case ShapePropertyValueType.RoundedRadius:
+                case ShapeValueType.RoundedRadius:
                     properties.RadiusAll = (int)value;
                     break;
             }
@@ -366,19 +374,19 @@ namespace XPaint
                 Shape shape = Shapes[selectedIds[0]];
                 switch (shape.ShapeProperty.PropertyType)
                 {
-                    case ShapePropertyType.IndicatorArrowProperty:
+                    case ShapePropertyType.Arrow:
                         shape.ShapeProperty = properties.GetArrowProperty();
                         break;
 
-                    case ShapePropertyType.StrokableProperty:
+                    case ShapePropertyType.Stroke:
                         shape.ShapeProperty = properties.GetStrokableProperty();
                         break;
 
-                    case ShapePropertyType.FillableProperty:
+                    case ShapePropertyType.Fill:
                         shape.ShapeProperty = properties.GetFillableProperty();
                         break;
 
-                    case ShapePropertyType.RoundedRectProperty:
+                    case ShapePropertyType.RoundedRect:
                         shape.ShapeProperty = properties.GetRoundedRectProperty();
                         break;
                 }
@@ -388,7 +396,7 @@ namespace XPaint
         /// <summary>检测当前图形的属性是否有变更，若有则触发事件</summary>
         private void CheckShapeProperty()
         {
-            if (currentTool != ToolType.ShapeSelect || SelectedShapesCount != 1)
+            if (currentTool != ToolType.Select || SelectedShapesCount != 1)
                 return;
 
             bool diff = false;
@@ -403,11 +411,11 @@ namespace XPaint
             {
                 ArrowProperty ip = (ArrowProperty)basepro;
                 if (ip.LineColor != properties.StrokeColor ||
-                    ip.LineSize != properties.IndicatorLineSize)
+                    ip.LineSize != properties.ArrowSize)
                 {
                     diff = true;
                     properties.StrokeColor=ip.LineColor;
-                    properties.IndicatorLineSize = ip.LineSize;
+                    properties.ArrowSize = ip.LineSize;
                 }
             }
 
@@ -536,7 +544,7 @@ namespace XPaint
         }
 
         /// <summary>当前需要的鼠标指针类型</summary>
-        public ToolCursorType CursorType
+        public CursorType CursorType
         {
             get { return cursorType; }
             private set
@@ -595,7 +603,7 @@ namespace XPaint
             mousePressed = true;
             isEverMove = false;            
 
-            if(currentTool != ToolType.ShapeSelect)
+            if(currentTool != ToolType.Select)
                 ClearSelectedShapes();
 
             switch (currentTool)
@@ -604,8 +612,8 @@ namespace XPaint
                     shapeInCreating = new LineShape(this, properties.GetStrokableProperty());
                     shapeInCreating.SetStartPoint(pos);
                     break;
-                case ToolType.BrokenLine:
-                    shapeInCreating = new BrokenLine(this, properties.GetStrokableProperty());
+                case ToolType.Polyline:
+                    shapeInCreating = new Polyline(this, properties.GetStrokableProperty());
                     shapeInCreating.SetStartPoint(pos);
                     break;
                 case ToolType.Arrow:
@@ -613,7 +621,7 @@ namespace XPaint
                     shapeInCreating.SetStartPoint(pos);
                     break;
 
-                case ToolType.Rectangle:
+                case ToolType.Rect:
                     shapeInCreating = new RectShape(this, properties.GetFillableProperty());
                     shapeInCreating.SetStartPoint(pos);
                     break;
@@ -626,7 +634,7 @@ namespace XPaint
                     shapeInCreating.SetStartPoint(pos);
                     break;
 
-                case ToolType.ShapeSelect:
+                case ToolType.Select:
                     SelectTool_MouseDown(pos);                    
                     break;
             }
@@ -639,9 +647,9 @@ namespace XPaint
             switch (currentTool)
             {
                 case ToolType.Line:
-                case ToolType.BrokenLine:
+                case ToolType.Polyline:
                 case ToolType.Arrow:
-                case ToolType.Rectangle:
+                case ToolType.Rect:
                 case ToolType.RoundedRect:
                 case ToolType.Ellipse:
                     if (!mousePressed)
@@ -652,7 +660,7 @@ namespace XPaint
                     }
                     break;
 
-                case ToolType.ShapeSelect:
+                case ToolType.Select:
                     SelectTool_MouseMove(pos);                    
                     break;
             }
@@ -663,9 +671,9 @@ namespace XPaint
             switch (currentTool)
             {
                 case ToolType.Line:
-                case ToolType.BrokenLine:
+                case ToolType.Polyline:
                 case ToolType.Arrow:
-                case ToolType.Rectangle:
+                case ToolType.Rect:
                 case ToolType.RoundedRect:
                 case ToolType.Ellipse:
                     if (!isEverMove)
@@ -688,7 +696,7 @@ namespace XPaint
                         shapeInCreating = null;
                     }
                     break;
-                case ToolType.ShapeSelect:
+                case ToolType.Select:
                     SelectTool_MouseUp(pos);
                     break;
             }
@@ -703,25 +711,25 @@ namespace XPaint
             switch (type)
             {
                 case ToolType.Ellipse:
-                    CursorType = ToolCursorType.EllipseTool;
+                    CursorType = CursorType.Ellipse;
                     break;
                 case ToolType.RoundedRect:
-                case ToolType.Rectangle:
-                    CursorType = ToolCursorType.RectTool;
+                case ToolType.Rect:
+                    CursorType = CursorType.Rect;
                     break;
                 case ToolType.Arrow:
                 case ToolType.Line:
-                case ToolType.BrokenLine:
-                    CursorType = ToolCursorType.LineTool;
+                case ToolType.Polyline:
+                    CursorType = CursorType.Line;
                     break;
-                case ToolType.ShapeSelect:
-                    CursorType = ToolCursorType.ShapeSelect_Default;
+                case ToolType.Select:
+                    CursorType = CursorType.SelectDefault;
                     break;
                 case ToolType.Hand:
-                    CursorType = ToolCursorType.HandTool;
+                    CursorType = CursorType.Hand;
                     break;
                 case ToolType.Custom:
-                    CursorType = ToolCursorType.Default;
+                    CursorType = CursorType.Default;
                     break;
             }
         }
@@ -749,17 +757,17 @@ namespace XPaint
             }
         }
 
-        public void SetPropertyValue(ShapePropertyValueType type, object value)
+        public void SetValue(ShapeValueType type, object value)
         {
             switch (currentTool)
             {
                 case ToolType.Line:
-                case ToolType.BrokenLine:
+                case ToolType.Polyline:
                 case ToolType.Arrow:
-                case ToolType.Rectangle:
+                case ToolType.Rect:
                 case ToolType.Ellipse:
                 case ToolType.RoundedRect:
-                case ToolType.ShapeSelect:
+                case ToolType.Select:
                     SetShapeProperty(type, value);
                     break;
             }
@@ -822,118 +830,6 @@ namespace XPaint
 
         #endregion
 
-        #region events
 
-        //--------------------------------------------
-        // 事件
-        //--------------------------------------------
-        // 最后的图片有变更
-        private static readonly object Event_FinalBitmapChanged = new object();
-        public event EventHandler FinalBitmapChanged
-        {
-            add { _events.AddHandler(Event_FinalBitmapChanged, value); }
-            remove { _events.RemoveHandler(Event_FinalBitmapChanged, value); }
-        }
-        protected virtual void OnFinalBitmapChanged(EventArgs e)
-        {
-            EventHandler handler = (EventHandler)_events[Event_FinalBitmapChanged];
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        // 选中的形状有变更
-        private static readonly object Event_SelectedShapesChanged = new object();
-        public event EventHandler SelectedShapesChanged
-        {
-            add { _events.AddHandler(Event_SelectedShapesChanged, value); }
-            remove { _events.RemoveHandler(Event_SelectedShapesChanged, value); }
-        }
-        protected virtual void OnSelectedShapesChanged(EventArgs e)
-        {
-            CheckShapeProperty();
-            EventHandler handler = (EventHandler)_events[Event_SelectedShapesChanged];
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        // 光标类型变更
-        private static readonly object Event_CursorTypeChanged = new object();
-        public event EventHandler CursorTypeChanged
-        {
-            add { _events.AddHandler(Event_CursorTypeChanged, value); }
-            remove { _events.RemoveHandler(Event_CursorTypeChanged, value); }
-        }
-        protected virtual void OnCursorTypeChanged(EventArgs e)
-        {
-            EventHandler handler = (EventHandler)_events[Event_CursorTypeChanged];
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        // 正在选择形状
-        private static readonly object Event_Selecting = new object();
-        public event EventHandler Selecting
-        {
-            add { _events.AddHandler(Event_Selecting, value); }
-            remove { _events.RemoveHandler(Event_Selecting, value); }
-        }
-        protected virtual void OnSelecting(EventArgs e)
-        {
-            EventHandler handler = (EventHandler)_events[Event_Selecting];
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        // 选中图形的属性有变更
-        private static readonly object Event_PropertyCollectorChanged = new object();
-        public event EventHandler PropertyCollectorChanged
-        {
-            add { _events.AddHandler(Event_PropertyCollectorChanged, value); }
-            remove { _events.RemoveHandler(Event_PropertyCollectorChanged, value); }
-        }
-        protected virtual void OnPropertyCollectorChanged(EventArgs e)
-        {
-            EventHandler handler = (EventHandler)_events[Event_PropertyCollectorChanged];
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        // 图形列表有变更
-        private static readonly object _ShapesChanged = new object();
-        public event EventHandler ShapesChanged
-        {
-            add { _events.AddHandler(_ShapesChanged, value); }
-            remove { _events.RemoveHandler(_ShapesChanged, value); }
-        }
-        protected virtual void OnShapesChanged(EventArgs e)
-        {
-            EventHandler handler = (EventHandler)_events[_ShapesChanged];
-            if (handler != null)
-                handler(this, e);
-        }
-
-        #endregion
-
-        #region inner class
-
-        private enum SelectToolsLocation
-        {
-            Blank,
-            UnselectedShape,
-            SelectedShape,
-            ShapeDraggableHotSpot
-        }
-
-        #endregion
     }
 }

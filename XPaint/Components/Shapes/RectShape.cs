@@ -10,7 +10,7 @@ namespace XPaint
     public class RectShape : FillableShape
     {
         private Rectangle rect;
-        private DraggableHotSpot[] _hotspots;
+        private HotSpot[] _hotspots;
 
         public RectShape(XKernel container, FillableProperty pro)
             : base(container, pro)
@@ -27,15 +27,15 @@ namespace XPaint
 
         protected virtual void initialHotspotRects()
         {
-            _hotspots = new DraggableHotSpot[9];
+            _hotspots = new HotSpot[9];
 
             int i;
             for (i = 0; i <= _hotspots.Length - 2; i++)
             {
-                _hotspots[i] = new DraggableHotSpot(HotSpotType.AnchorToScale);
+                _hotspots[i] = new HotSpot(HotSpotType.AnchorToScale);
             }
             // the last one is the rect used to rotate the shape
-            _hotspots[i] = new DraggableHotSpot(HotSpotType.RotatingRect);
+            _hotspots[i] = new HotSpot(HotSpotType.RotatingRect);
         }
 
         public override void SetStartPoint(Point pt)
@@ -86,7 +86,7 @@ namespace XPaint
 
         public override ToolType Type
         {
-            get { return ToolType.Rectangle; }
+            get { return ToolType.Rect; }
         }
 
         public override string Name
@@ -115,7 +115,7 @@ namespace XPaint
             
             DrawCrossSign(g, RotateLocation, XConsts.CrossSignHalfWidth);
 
-            DraggableHotSpot[] hs = DraggableHotSpots;
+            HotSpot[] hs = DraggableHotSpots;
             int i;
             for (i = 0; i < hs.Length - 1; i++)
             {
@@ -257,7 +257,7 @@ namespace XPaint
                     (int)(RotateLocation.X - hw), (int)(RotateLocation.Y - hw), w, w);            
         }
 
-        public override DraggableHotSpot[] DraggableHotSpots
+        public override HotSpot[] DraggableHotSpots
         {
             get { return _hotspots; }
         }

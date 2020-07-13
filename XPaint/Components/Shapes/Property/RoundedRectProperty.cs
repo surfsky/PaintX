@@ -6,7 +6,7 @@ namespace XPaint
     {
         public override ShapePropertyType PropertyType
         {
-            get { return ShapePropertyType.RoundedRectProperty; }
+            get { return ShapePropertyType.RoundedRect; }
         }
 
         public int RadiusTL { get; set; }

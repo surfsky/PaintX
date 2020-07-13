@@ -8,12 +8,12 @@ namespace XPaint
     {
         public override ShapePropertyType PropertyType
         {
-            get { return ShapePropertyType.StrokableProperty; }
+            get { return ShapePropertyType.Stroke; }
         }
 
         public float PenWidth { get; set; }
         public Color StrokeColor { get; set; }
-        public LineDashType LineDash { get; set; }
+        public LineType LineDash { get; set; }
         public LineCapType StartLineCap { get; set; }
         public LineCapType EndLineCap { get; set; }
         public PenAlignment PenAlign { get; set; }
@@ -23,7 +23,7 @@ namespace XPaint
         {
             PenWidth = 1.0f;
             StrokeColor = Color.Black;
-            LineDash = LineDashType.Solid;
+            LineDash = LineType.Solid;
             StartLineCap = LineCapType.Square;
             EndLineCap = LineCapType.Square;
             PenAlign = PenAlignment.Center;

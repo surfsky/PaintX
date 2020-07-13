@@ -11,7 +11,7 @@ namespace XPaint
 
         public override ShapePropertyType PropertyType
         {
-            get { return ShapePropertyType.IndicatorArrowProperty; }
+            get { return ShapePropertyType.Arrow; }
         }
 
         public ArrowProperty()

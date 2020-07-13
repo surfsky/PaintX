@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.ssToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.保存SToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -86,17 +87,10 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lblInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.MainColor = new XPaint.ColorSelector();
+            this.lbTool = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.MainColor = new XPaint.ColorSelector();
-            this.panel6 = new System.Windows.Forms.Panel();
-            this.rdoSelect = new System.Windows.Forms.RadioButton();
-            this.rdoEllipse = new System.Windows.Forms.RadioButton();
-            this.rdoRoundRectangle = new System.Windows.Forms.RadioButton();
-            this.rdoRectangle = new System.Windows.Forms.RadioButton();
-            this.rdoDashLine = new System.Windows.Forms.RadioButton();
-            this.rdoArrow = new System.Windows.Forms.RadioButton();
-            this.rdoLine = new System.Windows.Forms.RadioButton();
             this.panel2 = new System.Windows.Forms.Panel();
             this.lbShapes = new System.Windows.Forms.ListBox();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -106,7 +100,6 @@
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.panel6.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -118,7 +111,7 @@
             this.帮助HToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(900, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(1029, 25);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -240,7 +233,7 @@
             this.cmbArrowSize});
             this.toolStrip1.Location = new System.Drawing.Point(0, 25);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(900, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1029, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -552,10 +545,6 @@
             // 
             this.cmbPaintType.AutoSize = false;
             this.cmbPaintType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbPaintType.Items.AddRange(new object[] {
-            "仅描边",
-            "仅填充",
-            "描边及填充"});
             this.cmbPaintType.Name = "cmbPaintType";
             this.cmbPaintType.Size = new System.Drawing.Size(90, 25);
             this.cmbPaintType.SelectedIndexChanged += new System.EventHandler(this.paintType_SelectedIndexChanged);
@@ -600,9 +589,9 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblInfo});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 505);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 641);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(900, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1029, 22);
             this.statusStrip1.TabIndex = 8;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -616,15 +605,40 @@
             // 
             this.panel1.BackColor = System.Drawing.SystemColors.Control;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.MainColor);
+            this.panel1.Controls.Add(this.lbTool);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.MainColor);
-            this.panel1.Controls.Add(this.panel6);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 50);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(115, 455);
+            this.panel1.Size = new System.Drawing.Size(115, 591);
             this.panel1.TabIndex = 9;
+            // 
+            // MainColor
+            // 
+            this.MainColor.FillColor = System.Drawing.Color.White;
+            this.MainColor.Location = new System.Drawing.Point(1, 2);
+            this.MainColor.Name = "MainColor";
+            this.MainColor.Size = new System.Drawing.Size(113, 247);
+            this.MainColor.StrokeColor = System.Drawing.Color.Black;
+            this.MainColor.TabIndex = 1;
+            this.MainColor.StrokeColorChange += new System.EventHandler(this.MainColor_StrokeColorChange);
+            this.MainColor.FillColorChange += new System.EventHandler(this.MainColor_FillColorChange);
+            // 
+            // lbTool
+            // 
+            this.lbTool.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbTool.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbTool.FormattingEnabled = true;
+            this.lbTool.ItemHeight = 12;
+            this.lbTool.Location = new System.Drawing.Point(0, 265);
+            this.lbTool.Name = "lbTool";
+            this.lbTool.Size = new System.Drawing.Size(114, 326);
+            this.lbTool.TabIndex = 4;
+            this.lbTool.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lbTool_MouseDown);
             // 
             // label2
             // 
@@ -637,123 +651,19 @@
             // label1
             // 
             this.label1.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.label1.Location = new System.Drawing.Point(4, 197);
+            this.label1.Location = new System.Drawing.Point(3, 359);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(104, 3);
             this.label1.TabIndex = 2;
-            // 
-            // MainColor
-            // 
-            this.MainColor.FillColor = System.Drawing.Color.White;
-            this.MainColor.Location = new System.Drawing.Point(0, 203);
-            this.MainColor.Name = "MainColor";
-            this.MainColor.Size = new System.Drawing.Size(113, 247);
-            this.MainColor.StrokeColor = System.Drawing.Color.Black;
-            this.MainColor.TabIndex = 1;
-            this.MainColor.StrokeColorChange += new System.EventHandler(this.MainColor_StrokeColorChange);
-            this.MainColor.FillColorChange += new System.EventHandler(this.MainColor_FillColorChange);
-            // 
-            // panel6
-            // 
-            this.panel6.BackColor = System.Drawing.SystemColors.Control;
-            this.panel6.Controls.Add(this.rdoSelect);
-            this.panel6.Controls.Add(this.rdoEllipse);
-            this.panel6.Controls.Add(this.rdoRoundRectangle);
-            this.panel6.Controls.Add(this.rdoRectangle);
-            this.panel6.Controls.Add(this.rdoDashLine);
-            this.panel6.Controls.Add(this.rdoArrow);
-            this.panel6.Controls.Add(this.rdoLine);
-            this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel6.Location = new System.Drawing.Point(0, 0);
-            this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(113, 190);
-            this.panel6.TabIndex = 0;
-            // 
-            // rdoSelect
-            // 
-            this.rdoSelect.AutoSize = true;
-            this.rdoSelect.Location = new System.Drawing.Point(15, 12);
-            this.rdoSelect.Name = "rdoSelect";
-            this.rdoSelect.Size = new System.Drawing.Size(47, 16);
-            this.rdoSelect.TabIndex = 6;
-            this.rdoSelect.Text = "选择";
-            this.rdoSelect.UseVisualStyleBackColor = true;
-            this.rdoSelect.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
-            // 
-            // rdoEllipse
-            // 
-            this.rdoEllipse.AutoSize = true;
-            this.rdoEllipse.Location = new System.Drawing.Point(15, 162);
-            this.rdoEllipse.Name = "rdoEllipse";
-            this.rdoEllipse.Size = new System.Drawing.Size(47, 16);
-            this.rdoEllipse.TabIndex = 5;
-            this.rdoEllipse.Text = "椭圆";
-            this.rdoEllipse.UseVisualStyleBackColor = true;
-            this.rdoEllipse.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
-            // 
-            // rdoRoundRectangle
-            // 
-            this.rdoRoundRectangle.AutoSize = true;
-            this.rdoRoundRectangle.Location = new System.Drawing.Point(15, 137);
-            this.rdoRoundRectangle.Name = "rdoRoundRectangle";
-            this.rdoRoundRectangle.Size = new System.Drawing.Size(71, 16);
-            this.rdoRoundRectangle.TabIndex = 4;
-            this.rdoRoundRectangle.Text = "圆角矩形";
-            this.rdoRoundRectangle.UseVisualStyleBackColor = true;
-            this.rdoRoundRectangle.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
-            // 
-            // rdoRectangle
-            // 
-            this.rdoRectangle.AutoSize = true;
-            this.rdoRectangle.Location = new System.Drawing.Point(15, 112);
-            this.rdoRectangle.Name = "rdoRectangle";
-            this.rdoRectangle.Size = new System.Drawing.Size(47, 16);
-            this.rdoRectangle.TabIndex = 3;
-            this.rdoRectangle.Text = "矩形";
-            this.rdoRectangle.UseVisualStyleBackColor = true;
-            this.rdoRectangle.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
-            // 
-            // rdoDashLine
-            // 
-            this.rdoDashLine.AutoSize = true;
-            this.rdoDashLine.Location = new System.Drawing.Point(15, 87);
-            this.rdoDashLine.Name = "rdoDashLine";
-            this.rdoDashLine.Size = new System.Drawing.Size(47, 16);
-            this.rdoDashLine.TabIndex = 2;
-            this.rdoDashLine.Text = "折线";
-            this.rdoDashLine.UseVisualStyleBackColor = true;
-            this.rdoDashLine.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
-            // 
-            // rdoArrow
-            // 
-            this.rdoArrow.AutoSize = true;
-            this.rdoArrow.Location = new System.Drawing.Point(15, 62);
-            this.rdoArrow.Name = "rdoArrow";
-            this.rdoArrow.Size = new System.Drawing.Size(71, 16);
-            this.rdoArrow.TabIndex = 1;
-            this.rdoArrow.Text = "提示箭头";
-            this.rdoArrow.UseVisualStyleBackColor = true;
-            this.rdoArrow.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
-            // 
-            // rdoLine
-            // 
-            this.rdoLine.AutoSize = true;
-            this.rdoLine.Location = new System.Drawing.Point(15, 37);
-            this.rdoLine.Name = "rdoLine";
-            this.rdoLine.Size = new System.Drawing.Size(71, 16);
-            this.rdoLine.TabIndex = 0;
-            this.rdoLine.Text = "普通直线";
-            this.rdoLine.UseVisualStyleBackColor = true;
-            this.rdoLine.CheckedChanged += new System.EventHandler(this.rdoTool_CheckedChanged);
             // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.White;
             this.panel2.Controls.Add(this.lbShapes);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(744, 50);
+            this.panel2.Location = new System.Drawing.Point(873, 50);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(156, 455);
+            this.panel2.Size = new System.Drawing.Size(156, 591);
             this.panel2.TabIndex = 10;
             // 
             // lbShapes
@@ -765,7 +675,7 @@
             this.lbShapes.ItemHeight = 20;
             this.lbShapes.Location = new System.Drawing.Point(0, 0);
             this.lbShapes.Name = "lbShapes";
-            this.lbShapes.Size = new System.Drawing.Size(156, 455);
+            this.lbShapes.Size = new System.Drawing.Size(156, 591);
             this.lbShapes.TabIndex = 0;
             this.lbShapes.SelectedIndexChanged += new System.EventHandler(this.lbShapes_SelectedIndexChanged);
             // 
@@ -774,31 +684,32 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel3.Location = new System.Drawing.Point(115, 50);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(6, 455);
+            this.panel3.Size = new System.Drawing.Size(6, 591);
             this.panel3.TabIndex = 11;
             // 
             // panel4
             // 
             this.panel4.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel4.Location = new System.Drawing.Point(738, 50);
+            this.panel4.Location = new System.Drawing.Point(867, 50);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(6, 455);
+            this.panel4.Size = new System.Drawing.Size(6, 591);
             this.panel4.TabIndex = 0;
             // 
             // panMain
             // 
+            this.panMain.AllowDrop = true;
             this.panMain.BackColor = System.Drawing.Color.White;
             this.panMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panMain.Location = new System.Drawing.Point(121, 50);
             this.panMain.Name = "panMain";
-            this.panMain.Size = new System.Drawing.Size(617, 455);
+            this.panMain.Size = new System.Drawing.Size(746, 591);
             this.panMain.TabIndex = 12;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(900, 527);
+            this.ClientSize = new System.Drawing.Size(1029, 663);
             this.Controls.Add(this.panMain);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
@@ -807,11 +718,14 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "XPaint";
             this.Load += new System.EventHandler(this.FormMain_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
@@ -819,8 +733,6 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
-            this.panel6.ResumeLayout(false);
-            this.panel6.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -851,15 +763,7 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panMain;
-        private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.ListBox lbShapes;
-        private System.Windows.Forms.RadioButton rdoSelect;
-        private System.Windows.Forms.RadioButton rdoEllipse;
-        private System.Windows.Forms.RadioButton rdoRoundRectangle;
-        private System.Windows.Forms.RadioButton rdoRectangle;
-        private System.Windows.Forms.RadioButton rdoDashLine;
-        private System.Windows.Forms.RadioButton rdoArrow;
-        private System.Windows.Forms.RadioButton rdoLine;
         private ColorSelector MainColor;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
@@ -903,6 +807,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuEndcapSharpArrow2;
         private System.Windows.Forms.ToolStripSeparator sp;
         private System.Windows.Forms.ToolStripStatusLabel lblInfo;
+        private System.Windows.Forms.ListBox lbTool;
     }
 }
 

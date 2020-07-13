@@ -156,7 +156,7 @@ namespace XPaint
 
         public abstract ToolType Type { get; }
         public abstract string Name { get; }
-        public abstract DraggableHotSpot[] DraggableHotSpots { get; }
+        public abstract HotSpot[] DraggableHotSpots { get; }
 
         public override string ToString()
         {

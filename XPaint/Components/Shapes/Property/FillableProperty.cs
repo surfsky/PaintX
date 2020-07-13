@@ -5,20 +5,20 @@ namespace XPaint
 {
     public class FillableProperty : StrokableProperty
     {
-        public ShapePaintType PaintType { get; set; }
-        public ShapeFillType FillType { get; set; }
+        public PaintType PaintType { get; set; }
+        public FillType FillType { get; set; }
         public Color FillColor { get; set; }
 
 
         public override ShapePropertyType PropertyType
         {
-            get { return ShapePropertyType.FillableProperty; }
+            get { return ShapePropertyType.Fill; }
         }
 
         public FillableProperty()
         {
-            PaintType = ShapePaintType.Stroke;
-            FillType = ShapeFillType.SolidColor;
+            PaintType = PaintType.Stroke;
+            FillType = FillType.SolidColor;
             FillColor = Color.White;
         }
 

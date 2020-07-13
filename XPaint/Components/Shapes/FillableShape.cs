@@ -47,10 +47,10 @@ namespace XPaint
             SmoothingMode old = g.SmoothingMode;
             g.SmoothingMode = (ShapeProperty.Antialias) ? SmoothingMode.AntiAlias : SmoothingMode.HighSpeed;
             
-            if (_pro.PaintType == ShapePaintType.Fill || _pro.PaintType == ShapePaintType.StrokeAndFill)
+            if (_pro.PaintType == PaintType.Fill || _pro.PaintType == PaintType.StrokeAndFill)
                 g.FillPath(FillBrush, base.Path);
 
-            if (_pro.PaintType == ShapePaintType.Stroke || _pro.PaintType == ShapePaintType.StrokeAndFill)
+            if (_pro.PaintType == PaintType.Stroke || _pro.PaintType == PaintType.StrokeAndFill)
                 base.Draw(g);
 
             g.SmoothingMode = old;

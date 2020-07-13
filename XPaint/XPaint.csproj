@@ -39,6 +39,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>diamond.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -52,12 +55,16 @@
       <DependentUpon>ColorSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Components\SnowFlakeID.cs" />
+    <Compile Include="Components\UI.cs" />
     <Compile Include="Components\XCursors.cs" />
     <Compile Include="Components\XCanvas.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Components\XConsts.cs" />
+    <Compile Include="Components\XKernel.Events.cs" />
     <Compile Include="Components\XKernel.cs" />
+    <Compile Include="Components\XRes.cs" />
+    <Compile Include="Components\XTool.cs" />
     <Compile Include="FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,8 +84,8 @@
     <Compile Include="Components\Shapes\LineCap\LineArrowCap.cs" />
     <Compile Include="Components\Shapes\LineCap\RectangleCap.cs" />
     <Compile Include="Components\Shapes\LineCap\SharpArrowCap.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="Components\Shapes\BrokenLine.cs" />
+    <Compile Include="Components\Enums.cs" />
+    <Compile Include="Components\Shapes\Polyline.cs" />
     <Compile Include="Components\Shapes\Shape.cs" />
     <Compile Include="Components\Shapes\EllipseShape.cs" />
     <Compile Include="Components\Shapes\FillableShape.cs" />
@@ -94,7 +101,7 @@
     <Compile Include="Components\Shapes\Property\PropertyCollector.cs" />
     <Compile Include="Components\Shapes\Property\RoundedRectProperty.cs" />
     <Compile Include="Components\Shapes\Property\StrokableProperty.cs" />
-    <Compile Include="DraggableHotSpot.cs" />
+    <Compile Include="Components\HotSpot.cs" />
     <EmbeddedResource Include="ColorSelector.resx">
       <DependentUpon>ColorSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -211,6 +218,56 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\solid.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Components\SVG\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="App.Corer">
+      <Version>2.2.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_arrow%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_circle%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_line%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_polygen%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_rect%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_round_rect%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_star%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_triangle%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon+polygen%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_cursor%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_pan%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_polyline%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_text%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="diamond.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -11,18 +11,18 @@ namespace XPaint
     {
         public bool Antialias { get; set; }
 
-        public ArrowSize IndicatorLineSize { get; set; }
+        public ArrowSize ArrowSize { get; set; }
 
         public float PenWidth { get; set; }
         public Color StrokeColor { get; set; }
-        public LineDashType LineDash { get; set; }
+        public LineType LineDash { get; set; }
         public LineCapType StartLineCap { get; set; }
         public LineCapType EndLineCap { get; set; }
         public PenAlignment PenAlign { get; set; }
         public LineJoin HowLineJoin { get; set; }
 
-        public ShapePaintType PaintType { get; set; }
-        public ShapeFillType FillType { get; set; }
+        public PaintType PaintType { get; set; }
+        public FillType FillType { get; set; }
         public Color FillColor { get; set; }
 
         public int RadiusAll { get; set; }
@@ -30,16 +30,16 @@ namespace XPaint
         public PropertyCollector()
         {
             Antialias = true;
-            IndicatorLineSize = ArrowSize.Large;
+            ArrowSize = ArrowSize.Large;
             PenWidth = 1.0f;
             StrokeColor = Color.Black;
-            LineDash = LineDashType.Solid;
+            LineDash = LineType.Solid;
             StartLineCap = LineCapType.Square;
             EndLineCap = LineCapType.Square;
             PenAlign = PenAlignment.Center;
             HowLineJoin = LineJoin.Round;
-            PaintType = ShapePaintType.Stroke;
-            FillType = ShapeFillType.SolidColor;
+            PaintType = PaintType.Stroke;
+            FillType = FillType.SolidColor;
             FillColor = Color.White;
             RadiusAll = 8;
         }
@@ -49,7 +49,7 @@ namespace XPaint
             ArrowProperty iap = new ArrowProperty();
             iap.Antialias = this.Antialias;
             iap.LineColor = this.StrokeColor;
-            iap.LineSize = this.IndicatorLineSize;
+            iap.LineSize = this.ArrowSize;
             return iap;
         }
 
@@ -115,7 +115,7 @@ namespace XPaint
             PropertyCollector pc = new PropertyCollector();
             pc.Antialias = this.Antialias;
             
-            pc.IndicatorLineSize = this.IndicatorLineSize;
+            pc.ArrowSize = this.ArrowSize;
 
             pc.PenWidth = this.PenWidth;
             pc.StrokeColor = this.StrokeColor;

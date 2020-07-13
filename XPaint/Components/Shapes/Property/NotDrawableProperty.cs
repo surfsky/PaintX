@@ -6,7 +6,7 @@ namespace XPaint
     {
         public override ShapePropertyType PropertyType
         {
-            get { return ShapePropertyType.NotDrawable; }
+            get { return ShapePropertyType.Empty; }
         }
     }
 }

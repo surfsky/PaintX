@@ -163,6 +163,42 @@
   <data name="dot" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\dot.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="icon_arrow_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_arrow@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_circle_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_circle@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_cursor_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_cursor@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_line_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_line@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_pan_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_pan@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_polygon_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_polygen@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_polyline_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_polyline@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_rect_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_rect@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_round_rect_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_round_rect@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_star_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_star@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_text_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_text@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="icon_triangle_2x" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\icon_triangle@2x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="line_arrow_left" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\line_arrow_left.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

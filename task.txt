@@ -1,6 +1,54 @@
-优化
-    简化选择逻辑，点击选择某个形状并直接操作
-    形状间的锚点链接，连接后，拖动相关形状，连接线会自动调整
+----------------------------------------------------
+Files
+----------------------------------------------------
+2020-07-13
+    /简化XKernel的事件处理，去除eventHandleList逻辑
+    /实现键盘事件：delete
+    /ctrl + a
+    /用listbox 替代 radioboxlist
+    /换图标
+    /简化 cmbPaintType 绑定和选择
+    /简化 cmbArrowSize 绑定和选择
+    自绘listbox - tools
+    用tree替代listbox，来显示selectlayer，可以多选，可以编组
+    重构selectedShapes
+    锚点改造：
+        锚点和光标相绑定
+        矩形增加旋转锚点
+
+
+shape
+    实现 text
+    实现 triangle
+    实现 star
+    实现 path
+    实现 svg 里面常用的物件
+
+布局调整
+    拖拽文件到面板
+        /弄个类 XTool，封装tooltype、icon、method等
+        /自动生成控件列表
+        点击后开启拖动
+        拖到面板后
+            生成控件（自定义控件）
+            模拟点击页面（原始页面），再进行拖拽
+            弹出文件对话框（图片）
+    docker布局
+    多文档化
+
+图层及画布
+    图层
+        多选
+        调整图层层次（考虑用双向列表或数组来容纳图层）
+    画布
+        拖拽画布
+        放缩画布
+
+修正图层属性
+    修正矩形的属性控件组，线段才有起止帽
+    简化图层属性逻辑（现阶段是以聚合方式实现、传统是以继承或实现接口方式）
+
+
 
 基础形状
     /椭圆
@@ -43,23 +91,13 @@
     拷贝粘贴
     撤销重做 
 
-----------------------------------------------------
-Files
-----------------------------------------------------
-/Core
-/Shapes
-ColorSelector
-DraggableHotSpot
-Enums
-FormAbout
-FormMain
 
-
+------------------------------------------------
+完成
+------------------------------------------------
 2020-07-10
 
     /Change to net framework 4.6.2
-
-重构
     /Rename to XPaint
     /DrawableObject -> Shape
     /重构CursorHolder
@@ -70,17 +108,17 @@ FormMain
     /删除ShapeHelper
     /删除ScaleHelper
     /删除XKernel.ShapesInfoList
-    修正矩形的属性控件组，线段才有起止帽
-    统一方法命名方式，都用大写开头
-    简化XKernel的事件处理，去除eventHandleList逻辑
-    slected shape
+    /统一方法命名方式，都用大写开头
+    /slected shape
         /给shape增加ID属性，用guid或snowflakeid
         /给shape增加selected属性
         /简化XKernel.SelectedShapes/id/info 等属性，统一掉
         /简化SelectIDs -> SelectedShapes
         /点击图层，对应的图形被选中
         /新增图层，对应的层被选中
-        调整层次（考虑用双向列表来容纳图层列表）
+
+
+
 
 ------------------------------------------------
 废弃
@@ -150,3 +188,192 @@ FormMain
             //_size_90 = new Cursor(typeof(Cursor), "size_90");
             //_select = new Cursor(typeof(Cursor), "select");
             //_select2 = new Cursor(typeof(Cursor), "select2");
+
+                    //--------------------------------------------
+        // 事件
+        //--------------------------------------------
+        // 最后的图片有变更
+        private static readonly object Event_FinalBitmapChanged = new object();
+        public event EventHandler FinalBitmapChanged
+        {
+            add { _events.AddHandler(Event_FinalBitmapChanged, value); }
+            remove { _events.RemoveHandler(Event_FinalBitmapChanged, value); }
+        }
+        protected virtual void OnFinalBitmapChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_FinalBitmapChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 选中的形状有变更
+        private static readonly object Event_SelectedShapesChanged = new object();
+        public event EventHandler SelectedShapesChanged
+        {
+            add { _events.AddHandler(Event_SelectedShapesChanged, value); }
+            remove { _events.RemoveHandler(Event_SelectedShapesChanged, value); }
+        }
+        protected virtual void OnSelectedShapesChanged(EventArgs e)
+        {
+            CheckShapeProperty();
+            EventHandler handler = (EventHandler)_events[Event_SelectedShapesChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 光标类型变更
+        private static readonly object Event_CursorTypeChanged = new object();
+        public event EventHandler CursorTypeChanged
+        {
+            add { _events.AddHandler(Event_CursorTypeChanged, value); }
+            remove { _events.RemoveHandler(Event_CursorTypeChanged, value); }
+        }
+        protected virtual void OnCursorTypeChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_CursorTypeChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 正在选择形状
+        private static readonly object Event_Selecting = new object();
+        public event EventHandler Selecting
+        {
+            add { _events.AddHandler(Event_Selecting, value); }
+            remove { _events.RemoveHandler(Event_Selecting, value); }
+        }
+        protected virtual void OnSelecting(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_Selecting];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 选中图形的属性有变更
+        private static readonly object Event_PropertyCollectorChanged = new object();
+        public event EventHandler PropertyCollectorChanged
+        {
+            add { _events.AddHandler(Event_PropertyCollectorChanged, value); }
+            remove { _events.RemoveHandler(Event_PropertyCollectorChanged, value); }
+        }
+        protected virtual void OnPropertyCollectorChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_PropertyCollectorChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 图形列表有变更
+        private static readonly object _ShapesChanged = new object();
+        public event EventHandler ShapesChanged
+        {
+            add { _events.AddHandler(_ShapesChanged, value); }
+            remove { _events.RemoveHandler(_ShapesChanged, value); }
+        }
+        protected virtual void OnShapesChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[_ShapesChanged];
+            if (handler != null)
+                handler(this, e);
+        }
+
+                    this.rdoSelect.Tag = ToolType.Select;
+            this.rdoLine.Tag = ToolType.Line;
+            this.rdoRect.Tag = ToolType.Rect;
+            this.rdoRoundRect.Tag = ToolType.RoundedRect;
+            this.rdoEllipse.Tag = ToolType.Ellipse;
+            this.rdoArrow.Tag = ToolType.Arrow;
+            this.rdoPolyline.Tag = ToolType.Polyline;
+            rdoArrow.Checked = true;
+
+                    private void rdoTool_MouseDown(object sender, MouseEventArgs e)
+        {
+            var type = (ToolType)((Control)sender).Tag;
+            var json = new { ShapeType = type }.ToJson();
+            //_canvas.DoDragDrop(json, DragDropEffects.Move);
+        }
+
+        // 工具栏（形状）选择事件
+        private void rdoTool_CheckedChanged(object sender, EventArgs e)
+        {
+            var type = (ToolType)((Control)sender).Tag;
+            SelectTool(type);
+        }
+
+
+
+                    //this.rdoSelect.Checked = true;
+
+                                this.cmbPaintType.Items.AddRange(new object[] {
+            "仅描边",
+            "仅填充",
+            "描边及填充"});
+
+                        cmbPaintType.SelectedIndex = 0;
+
+                                        switch (ps.PaintType)
+                {
+                    case PaintType.Stroke:
+                        cmbPaintType.SelectedIndex = 0;
+                        break;
+                    case PaintType.Fill:
+                        cmbPaintType.SelectedIndex = 1;
+                        break;
+                    case PaintType.StrokeAndFill:
+                        cmbPaintType.SelectedIndex = 2;
+                        break;
+                }
+
+                                cmbPaintType.SelectedItem = ps.PaintType;
+
+                                            switch (cmbPaintType.SelectedIndex)
+            {
+                case 0:
+                    type = PaintType.Stroke;
+                    break;
+                case 1:
+                    type = PaintType.Fill;
+                    break;
+                case 2:
+                default:
+                    type = PaintType.StrokeAndFill;
+                    break;
+            }
+
+                            switch (ps.ArrowSize)
+                {
+                    case ArrowSize.Small:
+                        cmbArrowSize.SelectedIndex = 0;
+                        break;
+                    case ArrowSize.Medium:
+                        cmbArrowSize.SelectedIndex = 1;
+                        break;
+                    case ArrowSize.Large:
+                        cmbArrowSize.SelectedIndex = 2;
+                        break;
+                }
+            cmbArrowSize.SelectedIndex = 2;
+
+                        switch (cmbArrowSize.SelectedIndex)
+            {
+                case 0:
+                    size = ArrowSize.Small;
+                    break;
+                case 1:
+                    size = ArrowSize.Medium;
+                    break;
+                case 2:
+                default:
+                    size = ArrowSize.Large;
+                    break;
+            }

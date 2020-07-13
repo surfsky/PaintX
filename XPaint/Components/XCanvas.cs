@@ -48,33 +48,32 @@ namespace XPaint
         {
             kernel = new XKernel(new Size(600, 480));
             imageSize = kernel.FinalBitmap.Size;
-
             WhenImageSizeChanged();
-            RecalculateCanvas();                        
+            RecalculateCanvas();
 
-            kernel.FinalBitmapChanged += new EventHandler(RefleshFinalBitmapChanged);
-            kernel.SelectedShapesChanged += new EventHandler(kernel_SelectedObjectsChanged);
-            kernel.Selecting += new EventHandler(kernel_SelectToolInSelecting);
+            kernel.FinalBitmapChanged += new EventHandler(kernal_FinalBitmapChanged);
+            kernel.SelectedShapesChanged += new EventHandler(kernel_SelectedShapesChanged);
+            kernel.Selecting += new EventHandler(kernel_Selecting);
             kernel.CursorTypeChanged += new EventHandler(kernel_CursorTypeChanged);
 
-            kernel.SetTool(ToolType.Line);//mmmmmmmmmmmmmmmmmmmmmmmmm
+            kernel.SetTool(ToolType.Line);
         }                               
 
         #endregion
 
         #region event handler
 
-        private void RefleshFinalBitmapChanged(object sender, EventArgs e)
+        private void kernal_FinalBitmapChanged(object sender, EventArgs e)
         {
             base.Invalidate();
         }
 
-        private void kernel_SelectedObjectsChanged(object sender, EventArgs e)
+        private void kernel_SelectedShapesChanged(object sender, EventArgs e)
         {
             base.Invalidate();
         }
 
-        private void kernel_SelectToolInSelecting(object sender, EventArgs e)
+        private void kernel_Selecting(object sender, EventArgs e)
         {
             base.Invalidate();
         }
@@ -83,37 +82,37 @@ namespace XPaint
         {
             switch (kernel.CursorType)
             {
-                case ToolCursorType.EllipseTool:
+                case CursorType.Ellipse:
                     base.Cursor = XCursors.ToolEllipse;
                     break;
-                case ToolCursorType.LineTool:
+                case CursorType.Line:
                     base.Cursor = XCursors.ToolLine;
                     break;
-                case ToolCursorType.RectTool:
+                case CursorType.Rect:
                     base.Cursor = XCursors.ToolRect;
                     break;
-                case ToolCursorType.HandTool:
-                    base.Cursor = XCursors.Pan;
-                    break;
-                case ToolCursorType.ShapeSelect_Move:
-                    base.Cursor = Cursors.SizeAll;
-                    break;
-                case ToolCursorType.ShapeSelect_DragLineVertex:
-                    base.Cursor = XCursors.Select2;
-                    break;
-                case ToolCursorType.ShapeSelect_Scale:
-                    base.Cursor = XCursors.Size0;
-                    break;
-                case ToolCursorType.ShapeSelect_Rotate:
-                    base.Cursor = XCursors.Rotate;
-                    break;
-                case ToolCursorType.ShapeSelect_Default:
-                    base.Cursor = XCursors.Select;
-                    break;
-                case ToolCursorType.Default:
+                case CursorType.Default:
                     base.Cursor = Cursors.Default;
                     break;
-                case ToolCursorType.CustomTool:
+                case CursorType.Hand:
+                    base.Cursor = XCursors.Pan;
+                    break;
+                case CursorType.SelectMove:
+                    base.Cursor = Cursors.SizeAll;
+                    break;
+                case CursorType.SelectDragVertex:
+                    base.Cursor = XCursors.Select2;
+                    break;
+                case CursorType.SelectScale:
+                    base.Cursor = XCursors.Size0;
+                    break;
+                case CursorType.SelectRotate:
+                    base.Cursor = XCursors.Rotate;
+                    break;
+                case CursorType.SelectDefault:
+                    base.Cursor = XCursors.Select;
+                    break;
+                case CursorType.Custom:
                     //..
                     break;
 

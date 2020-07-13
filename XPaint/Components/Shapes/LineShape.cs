@@ -9,14 +9,14 @@ namespace XPaint
     /// </summary>
     public class LineShape : StrokableShape
     {
-        private DraggableHotSpot[] _hotspots;
+        private HotSpot[] _hotspots;
 
         public LineShape(XKernel container, StrokableProperty property)
             :base(container, property)
         {
-            _hotspots = new DraggableHotSpot[]{
-                new DraggableHotSpot(HotSpotType.LineVertex),
-                new DraggableHotSpot(HotSpotType.LineVertex)};
+            _hotspots = new HotSpot[]{
+                new HotSpot(HotSpotType.LineVertex),
+                new HotSpot(HotSpotType.LineVertex)};
         }
 
         public override ToolType Type
@@ -111,7 +111,7 @@ namespace XPaint
             _hotspots[1].Rect = new Rectangle((int)(pf[1].X - hw), (int)(pf[1].Y - hw), w, w);
         }
 
-        public override DraggableHotSpot[] DraggableHotSpots
+        public override HotSpot[] DraggableHotSpots
         {
             get { return _hotspots; }
         }

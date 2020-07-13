@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using App.Core;
+using XPaint.Components;
 
 namespace XPaint
 {
     public partial class FormMain : Form
     {
         private XCanvas _canvas;
-        private PropertyCollector properties;
+        private PropertyCollector _properties;
         private bool comingBackFromShape;
 
         public FormMain()
@@ -19,7 +22,8 @@ namespace XPaint
         {
             InitCanvas();
             InitData();
-            rdoArrow.Checked = true;
+            InitTools();
+            this.KeyPreview = true;
         }
 
         /// <summary>初始化画板</summary>
@@ -31,23 +35,38 @@ namespace XPaint
             _canvas.AutoScroll = true;
             _canvas.BorderStyle = BorderStyle.FixedSingle;
             _canvas.Dock = DockStyle.Fill;
+            _canvas.AllowDrop = true;
             this.panMain.Controls.Add(_canvas);
 
             _canvas.Kernel.SelectedShapesChanged += new EventHandler(Kernel_SelectedShapesChanged);
             _canvas.Kernel.PropertyCollectorChanged += new EventHandler(Kernel_PropertyCollectorChanged);
             _canvas.Kernel.ShapesChanged += new EventHandler(Kernel_ShapesChanged);
-        }                
+            SetDrag();
+        }
+
+        /// <summary>初始化工具列表</summary>
+        void InitTools()
+        {
+            this.lbTool.Items.Clear();
+            foreach (var item in XTool.All)
+            {
+                this.lbTool.Items.Add(item);
+            }
+        }
 
         /// <summary>初始化属性数据</summary>
         private void InitData()
         {
-            properties = new PropertyCollector();
+            _properties = new PropertyCollector();
             for (int i = 1; i <= 24; i++)
                 cmbStrokeWidth.Items.Add(i);
             cmbStrokeWidth.SelectedIndex = 0;
 
-            cmbArrowSize.SelectedIndex = 2;
-            cmbPaintType.SelectedIndex = 0;
+            //
+            UI.BindEnum(cmbPaintType, typeof(PaintType));
+            UI.BindEnum(cmbArrowSize, typeof(ArrowSize));
+
+            // 圆角矩形
             cmbRoundRadius.Items.Add(4);
             cmbRoundRadius.Items.Add(6);
             cmbRoundRadius.Items.Add(8);
@@ -57,10 +76,14 @@ namespace XPaint
             menuAnliaTrue.Tag = true;
             menuAliaFalse.Tag = false;
 
+            //UI.BindEnum(cmbStartCap, typeof(LineCapType));
+            //UI.BindEnum(cmbEndCap, typeof(LineCapType));
+            //UI.BindEnum(cmbLine, typeof(LineType));
+
             // line startcap
             menuStartcapRound.Tag = LineCapType.Rounded;
             menuStartcapSquare.Tag = LineCapType.Square;
-            menuStartcapRect.Tag = LineCapType.Rectangle;
+            menuStartcapRect.Tag = LineCapType.Rect;
             menuStartcapCircle.Tag = LineCapType.Circle;
             menuStartcapLineArrow.Tag = LineCapType.LineArrow;
             menuStartcapNormalArrow.Tag = LineCapType.NormalArrow;
@@ -70,7 +93,7 @@ namespace XPaint
             // line endcap
             menuEndcapRound.Tag = LineCapType.Rounded;
             menuEndcapSqare.Tag = LineCapType.Square;
-            menuEndcapRect.Tag = LineCapType.Rectangle;
+            menuEndcapRect.Tag = LineCapType.Rect;
             menuEndcapCircle.Tag = LineCapType.Circle;
             menuEndcapLineArrow.Tag = LineCapType.LineArrow;
             menuEndcapNormalArrow.Tag = LineCapType.NormalArrow;
@@ -78,47 +101,107 @@ namespace XPaint
             menuEndcapSharpArrow2.Tag = LineCapType.SharpArrow2;
 
             // line dash type
-            menuLinedashSolid.Tag = LineDashType.Solid;
-            menuLinedashDot.Tag = LineDashType.Dot;
-            menuLinedashDashDot.Tag = LineDashType.DashedDot;
-            menuLinedashDashDotDot.Tag = LineDashType.DashedDotDot;
-            menuLinedashDash1.Tag = LineDashType.Dash1;
-            menuLinedashDash2.Tag = LineDashType.Dash2;
+            menuLinedashSolid.Tag = LineType.Solid;
+            menuLinedashDot.Tag = LineType.Dot;
+            menuLinedashDashDot.Tag = LineType.DashedDot;
+            menuLinedashDashDotDot.Tag = LineType.DashedDotDot;
+            menuLinedashDash1.Tag = LineType.Dash1;
+            menuLinedashDash2.Tag = LineType.Dash2;
         }
 
-        /// <summary>选中工具</summary>
-        private void SelectTool(int index)
+
+        //---------------------------------------
+        // drag and drop
+        //---------------------------------------
+        // 启动拖动
+        private void lbTool_MouseDown(object sender, MouseEventArgs e)
         {
-            switch (index)
+            var o = lbTool.SelectedItem as XTool;
+            if (o != null)
             {
-                case 0: // line
-                    _canvas.Kernel.SetTool(ToolType.Line);
-                    SwitchPropertyCtrls(ShapePropertyType.StrokableProperty);
+                SelectTool(o.Type);
+                _canvas.DoDragDrop(o.Type.ToString(), DragDropEffects.Copy);
+            }
+        }
+
+        void SetDrag()
+        {
+            _canvas.AllowDrop = true;
+            _canvas.DragDrop += Canvas_DragDrop;
+            _canvas.DragEnter += Canvas_DragEnter;
+        }
+        private void Canvas_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Link;
+            else if (e.Data.GetDataPresent(DataFormats.Text))
+                e.Effect = DragDropEffects.Copy;
+            else if (e.Data.GetDataPresent(DataFormats.Bitmap))
+                e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+        private void Canvas_DragDrop(object sender, DragEventArgs e)
+        {
+            // 放下文件
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (Array)e.Data.GetData(DataFormats.FileDrop);
+                foreach (object f in files)
+                {
+                    var fileName = f.ToString();
+                    var p = this.PointToClient(new Point(e.X, e.Y));
+                    Debug.WriteLine(string.Format("{0} ({1},{2})", fileName, p.X, p.Y));
+                }
+            }
+            // 放置文本
+            else if (e.Data.GetDataPresent(DataFormats.Text))
+            {
+                // 如果是字符 { 开头的，解析为 json 再处理
+                // 否则创建文本控件
+                var p = new Point(e.X, e.Y);
+                _canvas.Kernel.MouseDown(p);
+            }
+            else if (e.Data.GetDataPresent(DataFormats.Bitmap))
+            {
+                // 创建图片图形
+            }
+        }
+
+
+
+
+        //---------------------------------------
+        // init controls
+        //---------------------------------------
+
+        /// <summary>选中工具</summary>
+        private void SelectTool(ToolType type)
+        {
+            _canvas.Kernel.SetTool(type);
+            switch (type)
+            {
+                case ToolType.Line:
+                    SwitchPropertyCtrls(ShapePropertyType.Stroke);
                     break;
-                case 1: // indicator arrow
-                    _canvas.Kernel.SetTool(ToolType.Arrow);
-                    SwitchPropertyCtrls(ShapePropertyType.IndicatorArrowProperty);
+                case ToolType.Arrow:
+                    SwitchPropertyCtrls(ShapePropertyType.Arrow);
                     break;
-                case 2: // broken line
-                    _canvas.Kernel.SetTool(ToolType.BrokenLine);
-                    SwitchPropertyCtrls(ShapePropertyType.StrokableProperty);
+                case ToolType.Polyline:
+                    SwitchPropertyCtrls(ShapePropertyType.Stroke);
                     break;
-                case 3: // rect
-                    _canvas.Kernel.SetTool(ToolType.Rectangle);
-                    SwitchPropertyCtrls(ShapePropertyType.FillableProperty);
+                case ToolType.Rect:
+                    SwitchPropertyCtrls(ShapePropertyType.Fill);
                     break;
-                case 4: // rounded rect
-                    _canvas.Kernel.SetTool(ToolType.RoundedRect);
-                    SwitchPropertyCtrls(ShapePropertyType.RoundedRectProperty);
+                case ToolType.RoundedRect:
+                    SwitchPropertyCtrls(ShapePropertyType.RoundedRect);
                     break;
-                case 5: // ellipse
-                    _canvas.Kernel.SetTool(ToolType.Ellipse);
-                    SwitchPropertyCtrls(ShapePropertyType.FillableProperty);
+                case ToolType.Ellipse:
+                    SwitchPropertyCtrls(ShapePropertyType.Fill);
                     break;
-                case 6: // shape select
-                    _canvas.Kernel.SetTool(ToolType.ShapeSelect);
+                case ToolType.Select:
                     if (_canvas.Kernel.SelectedShapesCount != 1)
-                        SwitchPropertyCtrls(ShapePropertyType.NotDrawable);
+                        SwitchPropertyCtrls(ShapePropertyType.Empty);
                     break;
             }
         }
@@ -128,35 +211,35 @@ namespace XPaint
         {
             switch (type)
             {
-                case ShapePropertyType.NotDrawable:
+                case ShapePropertyType.Empty:
                     ShowAntialiasCtrls(false);
                     ShowStrokeCtrls(false);
                     ShowFillCtrls(false);
                     ShowRoundCtrls(false);
                     ShowArrowCtrls(false);
                     break;
-                case ShapePropertyType.StrokableProperty:
+                case ShapePropertyType.Stroke:
                     ShowAntialiasCtrls(true);
                     ShowStrokeCtrls(true);
                     ShowFillCtrls(false);
                     ShowRoundCtrls(false);
                     ShowArrowCtrls(false);
                     break;
-                case ShapePropertyType.FillableProperty:
+                case ShapePropertyType.Fill:
                     ShowAntialiasCtrls(true);
                     ShowStrokeCtrls(true);
                     ShowFillCtrls(true);
                     ShowRoundCtrls(false);
                     ShowArrowCtrls(false);
                     break;
-                case ShapePropertyType.RoundedRectProperty:
+                case ShapePropertyType.RoundedRect:
                     ShowAntialiasCtrls(true);
                     ShowStrokeCtrls(true);
                     ShowFillCtrls(true);
                     ShowRoundCtrls(true);
                     ShowArrowCtrls(false);
                     break;
-                case ShapePropertyType.IndicatorArrowProperty:
+                case ShapePropertyType.Arrow:
                     ShowAntialiasCtrls(true);
                     ShowStrokeCtrls(false);
                     ShowFillCtrls(false);
@@ -206,179 +289,72 @@ namespace XPaint
         private void SetProperties(PropertyCollector ps)
         {
             comingBackFromShape = true;
-            bool isnull = (properties == null);
+            bool isnull = (_properties == null);
 
             // anti-alias
-            if (isnull || properties.Antialias != ps.Antialias)
-            {
-                btnAntialias.Image = ps.Antialias ? 
-                    Properties.Resources.anti_true : Properties.Resources.anti_false;
-            }
+            if (isnull || _properties.Antialias != ps.Antialias)
+                btnAntialias.Image = XRes.GetAntialiasImage(ps.Antialias);
 
             // indicator arrow size
-            if (isnull || properties.IndicatorLineSize != ps.IndicatorLineSize)
-            {
-                switch (ps.IndicatorLineSize)
-                {
-                    case ArrowSize.Small:
-                        cmbArrowSize.SelectedIndex = 0;
-                        break;
-                    case ArrowSize.Medium:
-                        cmbArrowSize.SelectedIndex = 1;
-                        break;
-                    case ArrowSize.Large:
-                        cmbArrowSize.SelectedIndex = 2;
-                        break;
-                }
-            }
+            if (isnull || _properties.ArrowSize != ps.ArrowSize)
+                UI.SetEnumValue(cmbArrowSize, ps.ArrowSize);
 
             // stroke color
-            if (isnull || properties.StrokeColor != ps.StrokeColor)
+            if (isnull || _properties.StrokeColor != ps.StrokeColor)
             {
                 MainColor.StrokeColor = ps.StrokeColor;
             }
 
             // stroke width
-            if (isnull || properties.PenWidth != ps.PenWidth)
+            if (isnull || _properties.PenWidth != ps.PenWidth)
             {
                 cmbStrokeWidth.Text = ps.PenWidth.ToString();
             }
 
             // line start cap
-            if (isnull || properties.StartLineCap != ps.StartLineCap)
-            {
-                Bitmap bm = null;
-                switch (ps.StartLineCap)
-                {
-                    case LineCapType.Rounded:
-                        bm = Properties.Resources.cap_round_left;
-                        break;
-                    case LineCapType.Square:
-                        bm = Properties.Resources.cap_square_left;
-                        break;
-                    case LineCapType.Rectangle:
-                        bm = Properties.Resources.cap_rect_left;
-                        break;
-                    case LineCapType.Circle:
-                        bm = Properties.Resources.cap_circle_left;
-                        break;
-                    case LineCapType.LineArrow:
-                        bm = Properties.Resources.line_arrow_left;
-                        break;
-                    case LineCapType.SharpArrow:
-                        bm = Properties.Resources.sharp_arrow_left;
-                        break;
-                    case LineCapType.SharpArrow2:
-                        bm = Properties.Resources.sharp_arrow2_left;
-                        break;
-                    case LineCapType.NormalArrow:
-                        bm = Properties.Resources.normal_arrow_left;
-                        break;
-                }
-                btnStartCapType.Image = bm;
-            }
+            if (isnull || _properties.StartLineCap != ps.StartLineCap)
+                btnStartCapType.Image = XRes.GetLineStartCapImage(ps.StartLineCap);
 
             // line end cap
-            if (isnull || properties.EndLineCap != ps.EndLineCap)
-            {
-                Bitmap bm = null;
-                switch (ps.EndLineCap)
-                {
-                    case LineCapType.Rounded:
-                        bm = Properties.Resources.cap_round_right;
-                        break;
-                    case LineCapType.Square:
-                        bm = Properties.Resources.cap_square_right;
-                        break;
-                    case LineCapType.Rectangle:
-                        bm = Properties.Resources.cap_rect_right;
-                        break;
-                    case LineCapType.Circle:
-                        bm = Properties.Resources.cap_circle_right;
-                        break;
-                    case LineCapType.LineArrow:
-                        bm = Properties.Resources.line_arrow_right;
-                        break;
-                    case LineCapType.SharpArrow:
-                        bm = Properties.Resources.sharp_arrow_right;
-                        break;
-                    case LineCapType.SharpArrow2:
-                        bm = Properties.Resources.sharp_arrow2_right;
-                        break;
-                    case LineCapType.NormalArrow:
-                        bm = Properties.Resources.normal_arrow_right;
-                        break;
-                }
-                btnEndCapType.Image = bm;
-            }
+            if (isnull || _properties.EndLineCap != ps.EndLineCap)
+                btnEndCapType.Image = XRes.GetLineEndCapImage(ps.EndLineCap);
 
             // line dash type
-            if (isnull || properties.LineDash != ps.LineDash)
-            {
-                Bitmap bm = null;
-                switch (ps.LineDash)
-                {
-                    case LineDashType.Solid:
-                        bm = Properties.Resources.solid;
-                        break;
-                    case LineDashType.Dot:
-                        bm = Properties.Resources.dot;
-                        break;
-                    case LineDashType.DashedDot:
-                        bm = Properties.Resources.dash_dot;
-                        break;
-                    case LineDashType.DashedDotDot:
-                        bm = Properties.Resources.dash_dot_dot;
-                        break;
-                    case LineDashType.Dash1:
-                        bm = Properties.Resources.dash;
-                        break;
-                    case LineDashType.Dash2:
-                        bm = Properties.Resources.dash2;
-                        break;
-                }
-                btnLineType.Image = bm;
-            }
+            if (isnull || _properties.LineDash != ps.LineDash)
+                btnLineType.Image = XRes.GetDashLineImage(ps.LineDash);
 
             // paint type
-            if (isnull || properties.PaintType != ps.PaintType)
+            if (isnull || _properties.PaintType != ps.PaintType)
             {
-                switch (ps.PaintType)
-                {
-                    case ShapePaintType.Stroke:
-                        cmbPaintType.SelectedIndex = 0;
-                        break;
-                    case ShapePaintType.Fill:
-                        cmbPaintType.SelectedIndex = 1;
-                        break;
-                    case ShapePaintType.StrokeAndFill:
-                        cmbPaintType.SelectedIndex = 2;
-                        break;
-                }
+                UI.SetEnumValue(cmbPaintType, ps.PaintType);
             }
 
             // fill color
-            if (isnull || properties.FillColor != ps.FillColor)
+            if (isnull || _properties.FillColor != ps.FillColor)
             {
                 MainColor.FillColor = ps.FillColor;
             }
 
             // round radius
-            if (isnull || properties.RadiusAll != ps.RadiusAll)
+            if (isnull || _properties.RadiusAll != ps.RadiusAll)
             {
                 cmbRoundRadius.Text = ps.RadiusAll.ToString();
             }
 
-            properties = ps;
+            _properties = ps;
             comingBackFromShape = false;
         }
 
+
+
+        //------------------------------------------------
+        // Canvas 事件
+        //------------------------------------------------
         /// <summary>图形列表变更事件</summary>
         private void Kernel_ShapesChanged(object sender, EventArgs e)
         {
             // 新增或删除形状后重新设为选择模式 surfsky 2020-07-10
-            this.rdoSelect.Checked = true;
-
+            this.lbShapes.SelectedIndex = -1;
             ShowShapes();
             ShowSelectedShapes();
         }
@@ -400,18 +376,38 @@ namespace XPaint
         /// <summary>选中的图形变更事件</summary>
         private void Kernel_SelectedShapesChanged(object sender, EventArgs e)
         {
-            if (rdoSelect.Checked)
+            //if (rdoSelect.Checked)
+            //if (lbShapes.SelectedIndex == 0)
             {
+                ShowSelectedShapes();
                 if (_canvas.Kernel.SelectedShapesCount == 1)
                 {
                     Shape shape = _canvas.Kernel.SelectedShapes[0];
                     SwitchPropertyCtrls(shape.ShapeProperty.PropertyType);
-                    ShowSelectedShapes();
                 }
                 else
                 {
-                    SwitchPropertyCtrls(ShapePropertyType.NotDrawable);
+                    SwitchPropertyCtrls(ShapePropertyType.Empty);
                 }
+            }
+        }
+
+        /// <summary>（选中图形）属性变更事件</summary>
+        private void Kernel_PropertyCollectorChanged(object sender, EventArgs e)
+        {
+            SetProperties(_canvas.Kernel.ShapePropertyCollector);
+        }
+
+        //------------------------------------------------
+        // 图层
+        //------------------------------------------------
+        // 选择图层
+        private void lbShapes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lbShapes.SelectedIndex != -1)
+            {
+                var shape = lbShapes.SelectedItem as Shape;
+                _canvas.Kernel.SelectedShapes = new Shape[] { shape };  // 会触发Kernel_SelectedShapesChanged 事件
             }
         }
 
@@ -428,32 +424,10 @@ namespace XPaint
         }
 
 
-        // 选择图层
-        private void lbShapes_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (lbShapes.SelectedIndex != -1)
-            {
-                var shape = lbShapes.SelectedItem as Shape;
-                _canvas.Kernel.SelectedShapes = new Shape[] { shape };  // 会触发Kernel_SelectedShapesChanged 事件
-            }
-        }
 
-
-        /// <summary>（选中图形）属性变更事件</summary>
-        private void Kernel_PropertyCollectorChanged(object sender, EventArgs e)
-        {
-            SetProperties(_canvas.Kernel.ShapePropertyCollector);
-        }
-
-        //-----------------------------------------
-        // 工具栏控制
-        //-----------------------------------------
-        // 工具栏（形状）选择事件
-        private void rdoTool_CheckedChanged(object sender, EventArgs e)
-        {
-            SelectTool(((Control)sender).TabIndex);
-        }
-
+        //------------------------------------------------
+        // 属性控制
+        //------------------------------------------------
         // 抗锯齿
         private void antiAlia_Click(object sender, EventArgs e)
         {
@@ -461,8 +435,8 @@ namespace XPaint
             btnAntialias.Image = mi.Image;
 
             bool v = (bool)mi.Tag;
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.Antialias, v);
-            properties.Antialias = v;
+            _canvas.Kernel.SetValue(ShapeValueType.Antialias, v);
+            _properties.Antialias = v;
         }
 
         // 起始线帽
@@ -472,8 +446,8 @@ namespace XPaint
             btnStartCapType.Image = mi.Image;
 
             LineCapType type = (LineCapType)mi.Tag;
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.StartLineCap, type);
-            properties.StartLineCap = type;
+            _canvas.Kernel.SetValue(ShapeValueType.StartLineCap, type);
+            _properties.StartLineCap = type;
         }
 
         // 点画线
@@ -482,9 +456,9 @@ namespace XPaint
             ToolStripMenuItem mi = (ToolStripMenuItem)sender;
             btnLineType.Image = mi.Image;
 
-            LineDashType type = (LineDashType)mi.Tag;
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.LineDash, type);
-            properties.LineDash = type;
+            LineType type = (LineType)mi.Tag;
+            _canvas.Kernel.SetValue(ShapeValueType.LineDash, type);
+            _properties.LineDash = type;
         }
 
         // 结束点
@@ -494,22 +468,22 @@ namespace XPaint
             btnEndCapType.Image = mi.Image;
 
             LineCapType type = (LineCapType)mi.Tag;
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.EndLineCap, type);
-            properties.EndLineCap = type;
+            _canvas.Kernel.SetValue(ShapeValueType.EndLineCap, type);
+            _properties.EndLineCap = type;
         }
 
         // 填充色变更
         private void MainColor_FillColorChange(object sender, EventArgs e)
         {
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.FillColor, MainColor.FillColor);
-            properties.FillColor = MainColor.FillColor;
+            _canvas.Kernel.SetValue(ShapeValueType.FillColor, MainColor.FillColor);
+            _properties.FillColor = MainColor.FillColor;
         }
 
         // 线段色变更
         private void MainColor_StrokeColorChange(object sender, EventArgs e)
         {
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.StrokeColor, MainColor.StrokeColor);
-            properties.StrokeColor = MainColor.StrokeColor;
+            _canvas.Kernel.SetValue(ShapeValueType.StrokeColor, MainColor.StrokeColor);
+            _properties.StrokeColor = MainColor.StrokeColor;
         }
 
         // 箭头大小
@@ -518,22 +492,9 @@ namespace XPaint
             if (comingBackFromShape)
                 return;
 
-            ArrowSize size;
-            switch (cmbArrowSize.SelectedIndex)
-            {
-                case 0:
-                    size = ArrowSize.Small;
-                    break;
-                case 1:
-                    size = ArrowSize.Medium;
-                    break;
-                case 2:
-                default:
-                    size = ArrowSize.Large;
-                    break;
-            }
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.ArrowSize, size);
-            properties.IndicatorLineSize = size;
+            ArrowSize size = (ArrowSize)UI.GetEnumValue(cmbArrowSize);
+            _canvas.Kernel.SetValue(ShapeValueType.ArrowSize, size);
+            _properties.ArrowSize = size;
         }
 
         // 线宽
@@ -545,8 +506,8 @@ namespace XPaint
             float v;
             if(float.TryParse(cmbStrokeWidth.Text,out v))
             {
-                _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.StrokeWidth, v);
-                properties.PenWidth = v;
+                _canvas.Kernel.SetValue(ShapeValueType.StrokeWidth, v);
+                _properties.PenWidth = v;
             }
             else
             {
@@ -560,22 +521,9 @@ namespace XPaint
             if (comingBackFromShape)
                 return;
 
-            ShapePaintType type;
-            switch (cmbPaintType.SelectedIndex)
-            {
-                case 0:
-                    type = ShapePaintType.Stroke;
-                    break;
-                case 1:
-                    type = ShapePaintType.Fill;
-                    break;
-                case 2:
-                default:
-                    type = ShapePaintType.StrokeAndFill;
-                    break;
-            }
-            _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.PaintType, type);
-            properties.PaintType = type;
+            PaintType type = (PaintType)UI.GetEnumValue(cmbPaintType);
+            _canvas.Kernel.SetValue(ShapeValueType.PaintType, type);
+            _properties.PaintType = type;
         }
 
         // 圆角
@@ -587,8 +535,8 @@ namespace XPaint
             int v;
             if (int.TryParse(cmbRoundRadius.Text, out v))
             {
-                _canvas.Kernel.SetPropertyValue(ShapePropertyValueType.RoundedRadius, v);
-                properties.RadiusAll = v;
+                _canvas.Kernel.SetValue(ShapeValueType.RoundedRadius, v);
+                _properties.RadiusAll = v;
             }
             else
             {
@@ -641,5 +589,21 @@ namespace XPaint
         {
             (new FormAbout()).ShowDialog();
         }
+
+        //--------------------------------------------
+        // 按键处理
+        //--------------------------------------------
+        // 按键处理( 注意要设置 Form.KeyPreview = true)
+        private void FormMain_KeyDown(object sender, KeyEventArgs e)
+        {
+        }
+        private void FormMain_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+                _canvas.Kernel.SelectAllShapes();
+            else if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back)
+                _canvas.Kernel.DeleteSelectedShapes();
+        }
+
     }
 }

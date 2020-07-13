@@ -39,22 +39,22 @@ namespace XPaint
 
             switch (_property.LineDash)
             {
-                case LineDashType.Solid:
+                case LineType.Solid:
                     pen.DashStyle = DashStyle.Solid;
                     break;
-                case LineDashType.Dot:
+                case LineType.Dot:
                     pen.DashStyle = DashStyle.Dot;
                     break;
-                case LineDashType.DashedDot:
+                case LineType.DashedDot:
                     pen.DashStyle = DashStyle.DashDot;
                     break;
-                case LineDashType.DashedDotDot:
+                case LineType.DashedDotDot:
                     pen.DashStyle = DashStyle.DashDotDot;
                     break;
-                case LineDashType.Dash1:
+                case LineType.Dash1:
                     pen.DashPattern = new float[] { 2, 2 };
                     break;
-                case LineDashType.Dash2:
+                case LineType.Dash2:
                     pen.DashPattern = new float[] { 4, 4 };
                     break;
             }
@@ -79,7 +79,7 @@ namespace XPaint
                 case LineCapType.SharpArrow2:
                     pen.CustomStartCap = new SharpArrowCap(8.0f, 6.4f, 4.2f);
                     break;
-                case LineCapType.Rectangle:
+                case LineCapType.Rect:
                     pen.CustomStartCap = new RectangleCap();
                     break;
                 case LineCapType.Circle:
@@ -109,7 +109,7 @@ namespace XPaint
                 case LineCapType.SharpArrow2:
                     pen.CustomEndCap = new SharpArrowCap(8.0f, 6.4f, 4.2f);
                     break;
-                case LineCapType.Rectangle:
+                case LineCapType.Rect:
                     pen.CustomEndCap = new RectangleCap();
                     break;
                 case LineCapType.Circle:

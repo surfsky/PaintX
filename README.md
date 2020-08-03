@@ -5,7 +5,9 @@ C# 矢量绘图示例程序
 ![](Doc/XPaint.png)
 
 此项目打算完成简单的矢量版的画图板。
-更复杂完善的功能（模仿Sketch），请查看另外一个项目 Xesign
+更复杂完善的功能（模仿Sketch），请查看另外一个项目 SvgEditor:
+
+![](Doc/svgeditor.png)
 
 # 布局
 

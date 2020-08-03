@@ -4,7 +4,10 @@ using System.Drawing.Drawing2D;
 
 namespace XPaint
 {
-    public static class GeometricHelper
+    /// <summary>
+    /// 绘图辅助方法
+    /// </summary>
+    public static class Painter
     {
         #region inner class
 
@@ -29,7 +32,7 @@ namespace XPaint
         /// <summary>
         /// 判断矩形是否包含了线段上的任何点
         /// </summary>       
-        public static bool RectContainsLine(Rectangle rect, Point linePt1, Point linePt2)
+        public static bool Contains(Rectangle rect, Point linePt1, Point linePt2)
         {
             if (rect.Contains(linePt1) || rect.Contains(linePt2))
                 return true;

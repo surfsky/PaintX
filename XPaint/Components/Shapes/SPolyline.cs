@@ -7,16 +7,16 @@ namespace XPaint
     /// <summary>
     /// 折线
     /// </summary>
-    public class Polyline : StrokableShape
+    public class SPolyline : SStrokable
     {
-        private HotSpot[] _hotspots;
+        //public Knob[] Knobs { get; set; }
 
-        public Polyline(XKernel container, StrokableProperty pro)
+        public SPolyline(XKernel container, StrokableProperty pro)
             :base(container, pro)
         {
-            _hotspots = new HotSpot[4];
+            Knobs = new Knob[4];
             for (int i = 0; i < 4; i++)
-                _hotspots[i] = new HotSpot(HotSpotType.LineVertex);
+                Knobs[i] = new Knob(KnobType.Line);
         }
 
         public override ToolType Type
@@ -31,16 +31,16 @@ namespace XPaint
 
         public override void SetEndPoint(Point pt)
         {
-            if (IsInCreating)
+            if (IsCreating)
             {
-                base.BeforePathTransforming();
+                base.BeforeTransform();
                 base.Path.Reset();
-                base.Path.AddLine(base.StartPoint, pt);
-                AfterPathTransformed(TransformType.Scale, true);
+                base.Path.AddLine(base.StartPt, pt);
+                AfterTransform(TransformType.Scale, true);
             }
             else
             {
-                PointF[] pf = GetBrokenLinePath(StartPoint, pt);
+                PointF[] pf = GetBrokenLinePath(StartPt, pt);
                 base.SetNewScaledPath(pf, new byte[] { 0, 1, 1, 1 });
             }
         }
@@ -60,53 +60,48 @@ namespace XPaint
             return new PointF[] { p1, p3, p4, p2 };
         }
 
-        public override void SetNewPosForHotAnchor(int index, Point newPos)
+        public override void MoveKnob(int index, Point newPos)
         {
             PointF[] pf = base.Path.PathPoints;
             pf[index] = newPos;
             base.SetNewScaledPath(pf, new byte[] { 0, 1, 1, 1 });
         }
 
-        protected override void RecalculateDraggableHotSpots()
+        protected override void RecalcKnobs()
         {
             PointF[] pf = Path.PathPoints;
-            int hw = XConsts.AnchorRectHalfWidth;
+            int hw = XConsts.KnobSize;
             int w = hw * 2;
-            for (int i = 0; i < _hotspots.Length; i++)
-                _hotspots[i].Rect = new Rectangle((int)(pf[i].X - hw), (int)(pf[i].Y - hw), w, w);
+            for (int i = 0; i < Knobs.Length; i++)
+                Knobs[i].Rect = new Rectangle((int)(pf[i].X - hw), (int)(pf[i].Y - hw), w, w);
         }
 
-        public override HotSpot[] DraggableHotSpots
-        {
-            get { return _hotspots; }
-        }        
-
-        public override void DrawSelectedRect(Graphics g, bool withAnchors)
+        public override void DrawSelection(Graphics g, bool withAnchors)
         {
             SmoothingMode old = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.HighSpeed;
-            for (int i = 0; i < _hotspots.Length; i++)
+            for (int i = 0; i < Knobs.Length; i++)
             {
-                g.FillRectangle(Brushes.White, _hotspots[i].Rect);
-                g.DrawRectangle(Pens.Black, _hotspots[i].Rect);
+                g.FillRectangle(Brushes.White, Knobs[i].Rect);
+                g.DrawRectangle(Pens.Black, Knobs[i].Rect);
             }
             g.SmoothingMode = old;
         }
         
-        public override bool AnyPointContainedByRect(Rectangle rect)
+        public override bool Intersect(Rectangle rect)
         {
             PointF[] pf = Path.PathPoints;
             for (int i = 0; i < pf.Length - 1; i++)
             {
                 Point linePt1 = new Point((int)pf[i].X, (int)pf[i].Y);
                 Point linePt2 = new Point((int)pf[i + 1].X, (int)pf[i + 1].Y);
-                if (GeometricHelper.RectContainsLine(rect, linePt1, linePt2))
+                if (Painter.Contains(rect, linePt1, linePt2))
                     return true;
             }
             return false;
         }
 
-        public override bool ContainsPoint(Point pos)
+        public override bool Contains(Point pos)
         {
             return base.Path.IsOutlineVisible(pos, XConsts.PenHitDetect);
         }

@@ -12,11 +12,11 @@ namespace XPaint
         }
 
         public RectangleCap(float width, float height)
-            : base(getFillPath(width, height), null)
+            : base(GetFillPath(width, height), null)
         {
         }
 
-        private static GraphicsPath getFillPath(float w, float h)
+        private static GraphicsPath GetFillPath(float w, float h)
         {
             GraphicsPath path = new GraphicsPath();
             path.AddRectangle(new RectangleF(-h / 2, -w / 2, h, w));

@@ -58,12 +58,12 @@ namespace XPaint
         {
             var items = new List<XTool>();
             items.Add(new XTool(ToolType.Select, Properties.Resources.icon_cursor_2x));
-            items.Add(new XTool(ToolType.Text, Properties.Resources.icon_text_2x));
+            //items.Add(new XTool(ToolType.Text, Properties.Resources.icon_text_2x));
             items.Add(new XTool(ToolType.Rect, Properties.Resources.icon_rect_2x));
             items.Add(new XTool(ToolType.RoundedRect, Properties.Resources.icon_round_rect_2x));
             items.Add(new XTool(ToolType.Polyline, Properties.Resources.icon_polyline_2x));
-            items.Add(new XTool(ToolType.Polygon, Properties.Resources.icon_polygon_2x));
-            items.Add(new XTool(ToolType.Star, Properties.Resources.icon_star_2x));
+            //items.Add(new XTool(ToolType.Polygon, Properties.Resources.icon_polygon_2x));
+            //items.Add(new XTool(ToolType.Star, Properties.Resources.icon_star_2x));
             items.Add(new XTool(ToolType.Arrow, Properties.Resources.icon_arrow_2x));
             return items;
         }

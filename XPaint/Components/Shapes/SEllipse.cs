@@ -7,9 +7,9 @@ namespace XPaint
     /// <summary>
     /// 椭圆（包括圆形）
     /// </summary>
-    public class EllipseShape : RectShape
+    public class SEllipse : SRect
     {
-        public EllipseShape(XKernel container, FillableProperty pro)
+        public SEllipse(XKernel container, FillableProperty pro)
             : base(container, pro)
         { }
 
@@ -23,9 +23,9 @@ namespace XPaint
             get { return "椭圆"; }
         }
 
-        public override void SetNewPosForHotAnchor(int index, Point newPos)
+        public override void MoveKnob(int index, Point newPos)
         {
-            if (index == DraggableHotSpots.Length - 1)
+            if (index == Knobs.Length - 1)
             {
                 base.Rotate(newPos);
             }
@@ -36,37 +36,37 @@ namespace XPaint
                     TopSideAngle, RightSideAngle);
                 base.SetNewScaledPath(pf);
             }
-            LastTransformPoint = newPos;
+            LastPt = newPos;
         }        
 
         /// <summary>
         /// reset center point, rotate point, corner/side anchors, top/right side angle
         /// </summary>
-        protected override void ResetPathExtraInfo(TransformType transType)
+        protected override void SetKnobs(TransformType transType)
         {
             PointF[] pf = base.Path.PathPoints;
             PointF[] corner = new PointF[4];
             PointF[] side = new PointF[4];
 
-            base.CenterPoint = new PointF((pf[6].X + pf[0].X) / 2, (pf[9].Y + pf[3].Y) / 2);
+            base.CenterPt = new PointF((pf[6].X + pf[0].X) / 2, (pf[9].Y + pf[3].Y) / 2);
 
             side[0] = pf[9];
             side[1] = pf[0];
             side[2] = pf[3];
             side[3] = pf[6];
 
-            float rdx = pf[0].X - CenterPoint.X;
-            float rdy = pf[0].Y - CenterPoint.Y;
-            float ldx = pf[6].X - CenterPoint.X;
-            float ldy = pf[6].Y - CenterPoint.Y;
+            float rdx = pf[0].X - CenterPt.X;
+            float rdy = pf[0].Y - CenterPt.Y;
+            float ldx = pf[6].X - CenterPt.X;
+            float ldy = pf[6].Y - CenterPt.Y;
 
             corner[0] = new PointF(pf[9].X + ldx, pf[9].Y + ldy);
             corner[1] = new PointF(pf[9].X + rdx, pf[9].Y + rdy);
             corner[2] = new PointF(pf[3].X + rdx, pf[3].Y + rdy);
             corner[3] = new PointF(pf[3].X + ldx, pf[3].Y + ldy);
 
-            CornerAnchors = corner;
-            SideAnchors = side;
+            CornerKnobs = corner;
+            SideKnobs = side;
 
             if (transType == TransformType.Rotate || transType == TransformType.Scale)
             {
@@ -80,46 +80,47 @@ namespace XPaint
 
             double angle = TopSideAngle + Math.PI;
             PointF rotatePoint = new PointF(
-                (float)(pf[3].X + XConsts.RotatingRectOffset * Math.Cos(angle)),
-                (float)(pf[3].Y + XConsts.RotatingRectOffset * Math.Sin(angle)));
-            base.RotateLocation = rotatePoint;
+                (float)(pf[3].X + XConsts.RotateRectOffset * Math.Cos(angle)),
+                (float)(pf[3].Y + XConsts.RotateRectOffset * Math.Sin(angle)));
+            base.RotaterPt = rotatePoint;
         }
 
-        protected override void ResetPath()
+        /// <summary>设置路径</summary>
+        protected override void SetPath()
         {
-            base.BeforePathTransforming();
+            base.BeforeTransform();
             base.Path.Reset();
             base.Path.AddEllipse(base.Rect);
-            AfterPathTransformed(TransformType.Scale, true);
+            AfterTransform(TransformType.Scale, true);
         }
 
-        /// <summary>
-        /// 返回按旋转前x, y坐标放大后的椭圆的数据点
-        /// </summary>
-        public static PointF[] GetScaledEllipsePath(GraphicsPath path, int index, Point mousePos,
+        /// <summary>计算放缩后的椭圆数据点</summary>
+        public static PointF[] GetScaledEllipsePath(
+            GraphicsPath path, int knobId, Point mousePt,
             bool shift, double topAng, double rightAng)
         {
             PointF[] pf = path.PathPoints;
-            if (index > 3)
+            if (knobId > 3)
             {
                 int[] ex = new int[] { 9, 0, 3, 6 };
-                return GetScaledEllipseSides(pf, ex[(index - 4)], mousePos, topAng, rightAng);
+                return GetEllipseRectBySide(pf, ex[(knobId - 4)], mousePt, topAng, rightAng);
             }
             else
             {
-                return GetScaledEllipseCorners(pf, index, mousePos, shift, topAng, rightAng);
+                return GetEllipseRectByCorner(pf, knobId, mousePt, shift, topAng, rightAng);
             }
         }
 
-        private static PointF[] GetScaledEllipseCorners(PointF[] pf, int index, Point mousePos,
+        private static PointF[] GetEllipseRectByCorner(
+            PointF[] pf, int index, Point mousePos,
             bool shift, double topAng, double rightAng)
         {
             int[] ex = new int[] { 6, 9, 9, 0, 0, 3, 3, 6 };
-            pf = GetScaledEllipseSides(pf, ex[index * 2], mousePos, topAng, rightAng);
-            return GetScaledEllipseSides(pf, ex[index * 2 + 1], mousePos, topAng, rightAng);
+            pf = GetEllipseRectBySide(pf, ex[index * 2], mousePos, topAng, rightAng);
+            return GetEllipseRectBySide(pf, ex[index * 2 + 1], mousePos, topAng, rightAng);
         }
 
-        private static PointF[] GetScaledEllipseSides(PointF[] pf, int index, Point mousePos,
+        private static PointF[] GetEllipseRectBySide(PointF[] pf, int index, Point mousePos,
             double topAng, double rightAng)
         {
             int index2 = (index + 6) % 12;

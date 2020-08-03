@@ -29,7 +29,7 @@ namespace XPaint
 
         private bool mousePressed;
         private bool isEverMove;
-        private Shape shapeInCreating;
+        private Shape shapeDrawing;
         private ToolType currentTool;
         private Point lastPt;
         private Point downPt;
@@ -74,12 +74,7 @@ namespace XPaint
 
         #region inner methods
 
-        private void ClearSelectedShapes()
-        {
-            ClearSelectedShapes(true);
-        }
-
-        private void ClearSelectedShapes(bool fireEvent)
+        private void ClearSelectedShapes(bool fireEvent=true)
         {
             if (selectedIds.Count > 0)
             {
@@ -94,22 +89,15 @@ namespace XPaint
             }
         }
 
-        private bool SelectShape(int shapeIndex)
+        /// <summary>选择指定图层</summary>        
+        private bool SelectShape(int shapeId, bool fireEvent)
         {
-            return SelectShape(shapeIndex, true);
-        }
-
-        /// <summary>
-        /// if this shape index is legal and not been select, then return true, otherwise false
-        /// </summary>        
-        private bool SelectShape(int shapeIndex, bool fireEvent)
-        {
-            if (shapeIndex >= 0 && shapeIndex < Shapes.Count)
+            if (shapeId >= 0 && shapeId < Shapes.Count)
             {
-                if (!selectedIds.Contains(shapeIndex))
+                if (!selectedIds.Contains(shapeId))
                 {
-                    Shapes[shapeIndex].IsSelected = true;
-                    selectedIds.Add(shapeIndex);
+                    Shapes[shapeId].IsSelected = true;
+                    selectedIds.Add(shapeId);
                     if (fireEvent)
                         OnSelectedShapesChanged(EventArgs.Empty);
                     return true;
@@ -118,34 +106,35 @@ namespace XPaint
             return false;
         }
 
+        /// <summary>选择指定图层</summary>
         private void SelectShapes(int[] ids)
         {
             bool ok = false;
             for (int i = 0; i < ids.Length; i++)
-            {
                 ok = SelectShape(ids[i], false);
-            }
+
             if(ok)
                 OnSelectedShapesChanged(EventArgs.Empty);
         }
 
         /// <summary>寻找指定点对应的图形</summary>
-        private int GetShapeByPosition(Point pos)
+        private int GetFirstShape(Point pos)
         {
             for (int i = Shapes.Count - 1; i >= 0; i--)
             {
-                if (Shapes[i].ContainsPoint(pos))
+                if (Shapes[i].Contains(pos))
                     return i;
             }
             return -1;
         }
 
-        private int[] CheckIndexByRect(Rectangle rect)
+        /// <summary>寻找指定区域内的所有图层</summary>
+        private int[] GetShapeIds(Rectangle rect)
         {
             List<int> list = new List<int>();
             for (int i = 0; i < Shapes.Count; i++)
             {
-                if (Shapes[i].AnyPointContainedByRect(rect))
+                if (Shapes[i].Intersect(rect))
                     list.Add(i);
             }
             return list.ToArray();
@@ -158,7 +147,7 @@ namespace XPaint
             if (SelectedShapesCount == 1)
             {
                 int i = selectedIds[0];
-                HotSpot[] hs = Shapes[i].DraggableHotSpots;
+                Knob[] hs = Shapes[i].Knobs;
                 for (int j = 0; j < hs.Length; j++)
                 {
                     if (hs[j].Visible && hs[j].Rect.Contains(pos))
@@ -173,7 +162,7 @@ namespace XPaint
             }
             if (!inHotSpot)
             {
-                int index = GetShapeByPosition(pos);
+                int index = GetFirstShape(pos);
                 if (index != -1)
                 {
                     if (Shapes[index].IsSelected)
@@ -184,7 +173,7 @@ namespace XPaint
                     {
                         selectToolLoc = SelectToolsLocation.UnselectedShape;
                         ClearSelectedShapes(false);
-                        SelectShape(index);
+                        SelectShape(index, true);
                         CursorType = CursorType.SelectMove;
                     }
                     lastPt = pos;
@@ -196,14 +185,14 @@ namespace XPaint
             }
         }
 
-        private void SelectTool_MouseMove(Point pos)
+        private void SelectTool_MouseMove(Point point)
         {
             if (mousePressed)
             {
                 switch (selectToolLoc)
                 {
                     case SelectToolsLocation.Blank:
-                        lastPt = pos;
+                        lastPt = point;
                         isInSelecting = true;
                         OnSelecting(EventArgs.Empty);
                         break;
@@ -212,14 +201,14 @@ namespace XPaint
                         for (int i = 0; i < selectedIds.Count; i++)
                         {
                             Shapes[selectedIds[i]].Move(
-                                pos.X - lastPt.X, pos.Y - lastPt.Y,
+                                point.X - lastPt.X, 
+                                point.Y - lastPt.Y,
                                 i == selectedIds.Count - 1);
                         }                        
-                        lastPt = pos;
+                        lastPt = point;
                         break;
                     case SelectToolsLocation.ShapeDraggableHotSpot:
-                        Shapes[selectedIds[0]].SetNewPosForHotAnchor(
-                            pressedHotSpotIndex, pos);
+                        Shapes[selectedIds[0]].MoveKnob(pressedHotSpotIndex, point);
                         break;
                 }
             }
@@ -230,21 +219,21 @@ namespace XPaint
                 {
                     int index = selectedIds[0];
                     bool inHotSpot = false;
-                    HotSpot[] hs = Shapes[index].DraggableHotSpots;
+                    Knob[] hs = Shapes[index].Knobs;
                     
                     for (int j = 0; j < hs.Length; j++)
                     {
-                        if (hs[j].Visible && hs[j].Rect.Contains(pos))
+                        if (hs[j].Visible && hs[j].Rect.Contains(point))
                         {
                             switch (hs[j].Type)
                             {
-                                case HotSpotType.LineVertex:
+                                case KnobType.Line:
                                     type = CursorType.SelectDragVertex;
                                     break;
-                                case HotSpotType.RotatingRect:
+                                case KnobType.Rotate:
                                     type = CursorType.SelectRotate;
                                     break;
-                                case HotSpotType.AnchorToScale:
+                                case KnobType.Scale:
                                     type = CursorType.SelectScale;
                                     break;
                             }
@@ -253,7 +242,7 @@ namespace XPaint
                         }
                     }
 
-                    if (!inHotSpot && Shapes[index].ContainsPoint(pos))
+                    if (!inHotSpot && Shapes[index].Contains(point))
                     {
                         type = CursorType.SelectMove;
                     }
@@ -263,7 +252,7 @@ namespace XPaint
                     // multiple selected, then shapes can just be moved
                     for (int i = 0; i < selectedIds.Count; i++)
                     {
-                        if (Shapes[selectedIds[i]].ContainsPoint(pos))
+                        if (Shapes[selectedIds[i]].Contains(point))
                         {
                             type = CursorType.SelectMove;
                             break;
@@ -289,7 +278,7 @@ namespace XPaint
                         if (SelectedShapesCount > 0)
                         {
                             ClearSelectedShapes(false);
-                            SelectShape(GetShapeByPosition(pos));
+                            SelectShape(GetFirstShape(pos), true);
                         }
                         break;
                 }
@@ -300,11 +289,9 @@ namespace XPaint
                 {
                     case SelectToolsLocation.Blank:
                         ClearSelectedShapes();
-                        int[] rst = CheckIndexByRect(SelectingRect);
+                        int[] rst = GetShapeIds(SelectingRect);
                         if (rst.Length > 0)
-                        {
                             SelectShapes(rst);
-                        }
                         isInSelecting = false;
                         OnSelecting(EventArgs.Empty);
                         break;                    
@@ -500,6 +487,9 @@ namespace XPaint
         #endregion
 
         #region public properties
+        //----------------------------------------------------
+        // Property
+        //----------------------------------------------------
 
         /// <summary>
         /// 获取绘制了所有形状的最终的Bitmap
@@ -572,29 +562,32 @@ namespace XPaint
 
         #region public methods
 
-        public void RefleshBitmap()
+        public void RefreshBitmap()
         {
-            RefleshBitmap(Rectangle.Empty);
+            RefreshBitmap(Rectangle.Empty);
         }
 
-        public void RefleshBitmap(Rectangle clipRect)
+        /// <summary>局部刷新图像</summary>
+        /// <param name="rect">需刷新的区域</param>
+        public void RefreshBitmap(Rectangle rect)
         {
-            bool empty = clipRect.IsEmpty;
+            bool empty = rect.IsEmpty;
             if (!empty)
-                graphics.SetClip(clipRect);
+                graphics.SetClip(rect);
 
             graphics.FillRectangle(Brushes.White, new Rectangle(Point.Empty, finalBitmap.Size));
 
+            // 只刷新相交的图层
             for (int i = 0; i < Shapes.Count; i++)
             {
-                if (empty || clipRect.IntersectsWith(Shapes[i].RectToReflesh))
+                if (empty || rect.IntersectsWith(Shapes[i].RefreshRect))
                     Shapes[i].Draw(graphics);
             }
-            if (shapeInCreating != null && (empty || clipRect.IntersectsWith(shapeInCreating.RectToReflesh)))
-                shapeInCreating.Draw(graphics);
+            // 绘制正在创建的图层
+            if (shapeDrawing != null && (empty || rect.IntersectsWith(shapeDrawing.RefreshRect)))
+                shapeDrawing.Draw(graphics);
 
             OnFinalBitmapChanged(EventArgs.Empty);
-
             graphics.ResetClip();
         }
 
@@ -609,29 +602,29 @@ namespace XPaint
             switch (currentTool)
             {
                 case ToolType.Line:
-                    shapeInCreating = new LineShape(this, properties.GetStrokableProperty());
-                    shapeInCreating.SetStartPoint(pos);
+                    shapeDrawing = new SLine(this, properties.GetStrokableProperty());
+                    shapeDrawing.SetStartPoint(pos);
                     break;
                 case ToolType.Polyline:
-                    shapeInCreating = new Polyline(this, properties.GetStrokableProperty());
-                    shapeInCreating.SetStartPoint(pos);
+                    shapeDrawing = new SPolyline(this, properties.GetStrokableProperty());
+                    shapeDrawing.SetStartPoint(pos);
                     break;
                 case ToolType.Arrow:
-                    shapeInCreating = new Arrow(this, properties.GetArrowProperty());
-                    shapeInCreating.SetStartPoint(pos);
+                    shapeDrawing = new SArrow(this, properties.GetArrowProperty());
+                    shapeDrawing.SetStartPoint(pos);
                     break;
 
                 case ToolType.Rect:
-                    shapeInCreating = new RectShape(this, properties.GetFillableProperty());
-                    shapeInCreating.SetStartPoint(pos);
+                    shapeDrawing = new SRect(this, properties.GetFillableProperty());
+                    shapeDrawing.SetStartPoint(pos);
                     break;
                 case ToolType.RoundedRect:
-                    shapeInCreating = new RoundedRectShape(this, properties.GetRoundedRectProperty());
-                    shapeInCreating.SetStartPoint(pos);
+                    shapeDrawing = new SRoundRect(this, properties.GetRoundedRectProperty());
+                    shapeDrawing.SetStartPoint(pos);
                     break;
                 case ToolType.Ellipse:
-                    shapeInCreating = new EllipseShape(this, properties.GetFillableProperty());
-                    shapeInCreating.SetStartPoint(pos);
+                    shapeDrawing = new SEllipse(this, properties.GetFillableProperty());
+                    shapeDrawing.SetStartPoint(pos);
                     break;
 
                 case ToolType.Select:
@@ -654,9 +647,9 @@ namespace XPaint
                 case ToolType.Ellipse:
                     if (!mousePressed)
                         return;
-                    if (shapeInCreating != null)
+                    if (shapeDrawing != null)
                     {
-                        shapeInCreating.SetEndPoint(pos);
+                        shapeDrawing.SetEndPoint(pos);
                     }
                     break;
 
@@ -678,22 +671,23 @@ namespace XPaint
                 case ToolType.Ellipse:
                     if (!isEverMove)
                     {
-                        shapeInCreating = null;
+                        shapeDrawing = null;
                         mousePressed = false;
                         return;
                     }
-                    if (shapeInCreating != null)
+                    if (shapeDrawing != null)
                     {                        
-                        if (shapeInCreating.IsEndPointAcceptable(pos))
+                        if (shapeDrawing.IsEndPointAcceptable(pos))
                         {
-                            shapeInCreating.ID = SnowflakeID.Instance.NewID();
-                            shapeInCreating.IsInCreating = false;
-                            shapeInCreating.SetEndPoint(pos);
-                            Shapes.Add(shapeInCreating);
+                            shapeDrawing.ID = SnowflakeID.Instance.NewID();
+                            shapeDrawing.IsCreating = false;
+                            shapeDrawing.SetEndPoint(pos);
+                            Shapes.Add(shapeDrawing);
                             OnShapesChanged(EventArgs.Empty);
-                            SelectShape(Shapes.Count - 1);                            
+                            SelectShape(Shapes.Count - 1, true);                            
                         }
-                        shapeInCreating = null;
+                        shapeDrawing = null;
+                        currentTool = ToolType.Select;
                     }
                     break;
                 case ToolType.Select:
@@ -743,7 +737,7 @@ namespace XPaint
             bool one = (SelectedShapesCount == 1);
             for (int i = 0; i < selectedIds.Count; i++)
             {
-                Shapes[selectedIds[i]].DrawSelectedRect(g, one);
+                Shapes[selectedIds[i]].DrawSelection(g, one);
             }
         }
 
@@ -794,7 +788,7 @@ namespace XPaint
 
             selectedIds.Clear();
             Shapes.Clear();
-            RefleshBitmap();
+            RefreshBitmap();
             OnSelectedShapesChanged(EventArgs.Empty);
             OnShapesChanged(EventArgs.Empty);
         }
@@ -810,7 +804,7 @@ namespace XPaint
                 this.Shapes.Remove(b);
 
             selectedIds.Clear();
-            RefleshBitmap();
+            RefreshBitmap();
             OnSelectedShapesChanged(EventArgs.Empty);
             OnShapesChanged(EventArgs.Empty);
         }

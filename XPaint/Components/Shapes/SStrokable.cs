@@ -7,12 +7,12 @@ namespace XPaint
     /// <summary>
     /// 可描边图形（如线）
     /// </summary>
-    public abstract class StrokableShape : Shape
+    public abstract class SStrokable : Shape
     {       
         private StrokableProperty _property;
         private Pen pen;
 
-        public StrokableShape(XKernel container, StrokableProperty property)
+        public SStrokable(XKernel container, StrokableProperty property)
             : base(container, property)
         {
             _property = property;

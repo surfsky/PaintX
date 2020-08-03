@@ -632,8 +632,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbTool.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbTool.Font = new System.Drawing.Font("微软雅黑", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lbTool.FormattingEnabled = true;
-            this.lbTool.ItemHeight = 12;
+            this.lbTool.IntegralHeight = false;
+            this.lbTool.ItemHeight = 20;
             this.lbTool.Location = new System.Drawing.Point(0, 265);
             this.lbTool.Name = "lbTool";
             this.lbTool.Size = new System.Drawing.Size(114, 326);
@@ -669,7 +671,7 @@
             // lbShapes
             // 
             this.lbShapes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbShapes.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lbShapes.Font = new System.Drawing.Font("微软雅黑", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lbShapes.FormattingEnabled = true;
             this.lbShapes.IntegralHeight = false;
             this.lbShapes.ItemHeight = 20;

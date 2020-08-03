@@ -7,12 +7,12 @@ namespace XPaint
     /// <summary>
     /// 箭头
     /// </summary>
-    public class Arrow : LineShape
+    public class SArrow : SLine
     {
         private byte[] types = new byte[] { 0, 1, 1, 1, 1, 1, 0x81 };
         private ArrowProperty _property;
 
-        public Arrow(XKernel container, ArrowProperty pro)
+        public SArrow(XKernel container, ArrowProperty pro)
             :base(container, null)
         {
             _property = pro;
@@ -39,14 +39,14 @@ namespace XPaint
                 _property = (ArrowProperty)value;
 
                 // reset the size
-                Point p = new Point((int)VertexAnchors[0].X, (int)VertexAnchors[0].Y);
-                SetNewPosForHotAnchor(0, p);
+                Point p = new Point((int)Points[0].X, (int)Points[0].Y);
+                MoveKnob(0, p);
             }
         }
 
         public override void SetEndPoint(Point pt)
         {
-            PointF[] pf = GetArrowPath(base.StartPoint, pt, _property.LineSize);
+            PointF[] pf = GetArrowPath(base.StartPt, pt, _property.LineSize);
             base.SetNewScaledPath(pf, types);
         }
 
@@ -102,9 +102,9 @@ namespace XPaint
             return pf;
         }
 
-        public override void SetNewPosForHotAnchor(int index, Point newPos)
+        public override void MoveKnob(int index, Point newPos)
         {
-            PointF[] pf = base.VertexAnchors;
+            PointF[] pf = base.Points;
             pf[index] = newPos;
 
             PointF[] newps = GetArrowPath(pf[0], pf[1], _property.LineSize);
@@ -116,13 +116,13 @@ namespace XPaint
         //    _property = (IndicatorArrowProperty)newValue;
         //}
 
-        protected override void UpdateVertexAnchors()
+        protected override void UpdateKnobs()
         {
             PointF[] pf = Path.PathPoints;
             PointF[] va = new PointF[2];
             va[0] = new PointF((pf[0].X + pf[6].X) / 2, (pf[0].Y + pf[6].Y) / 2);
             va[1] = pf[3];
-            VertexAnchors = va;
+            Points = va;
         }
 
         public override void Draw(Graphics g)
@@ -138,7 +138,7 @@ namespace XPaint
             g.SmoothingMode = old;
         }
 
-        public override bool ContainsPoint(Point pos)
+        public override bool Contains(Point pos)
         {
             return base.Path.IsVisible(pos);
         }

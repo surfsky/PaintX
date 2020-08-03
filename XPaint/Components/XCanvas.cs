@@ -7,33 +7,28 @@ namespace XPaint
 {
     public class XCanvas : Panel
     {
-        #region private const
-        
-        // canvas half width
-        private static readonly int CW = 60;
+        //----------------------------------------------------
+        // Field
+        //----------------------------------------------------
+        // static
+        static readonly int DW = 120;
+        static readonly int DH = 80;
 
-        // canvas half height
-        private static readonly int CH = 40;
-        
-        #endregion
+        // private
+        Size _imageSize;
+        Rectangle _imageRect;
+        Rectangle _frameRect;
 
-        #region private var
+        // public
+        public XKernel Kernel;
 
-        private XKernel kernel;
-
-        private Size imageSize;
-        private Size canvasSizeMin;
-        private Size canvasSizeActual;
-        private Rectangle rectImageOutLine;
-        private Rectangle rectImage;
-
-        #endregion
-
-        #region constructors
-
+        //----------------------------------------------------
+        // Constructor
+        //----------------------------------------------------
         public XCanvas()
         {
-            base.SetStyle(ControlStyles.UserPaint |
+            base.SetStyle(
+                ControlStyles.UserPaint |
                 ControlStyles.ResizeRedraw |
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.SupportsTransparentBackColor |
@@ -41,28 +36,28 @@ namespace XPaint
             base.ResizeRedraw = true;
             base.BorderStyle = BorderStyle.FixedSingle;
             base.AutoScrollMinSize = Size.Empty;
-            initialValue();
+            InitialValue();
         }
 
-        private void initialValue()
+        private void InitialValue()
         {
-            kernel = new XKernel(new Size(600, 480));
-            imageSize = kernel.FinalBitmap.Size;
-            WhenImageSizeChanged();
-            RecalculateCanvas();
+            Kernel = new XKernel(new Size(600, 480));
+            _imageSize = Kernel.FinalBitmap.Size;
+            base.AutoScrollMinSize = new Size(_imageSize.Width + DW, _imageSize.Height + DH);
+            RecalcCanvas();
 
-            kernel.FinalBitmapChanged += new EventHandler(kernal_FinalBitmapChanged);
-            kernel.SelectedShapesChanged += new EventHandler(kernel_SelectedShapesChanged);
-            kernel.Selecting += new EventHandler(kernel_Selecting);
-            kernel.CursorTypeChanged += new EventHandler(kernel_CursorTypeChanged);
+            Kernel.FinalBitmapChanged += new EventHandler(kernal_FinalBitmapChanged);
+            Kernel.SelectedShapesChanged += new EventHandler(kernel_SelectedShapesChanged);
+            Kernel.Selecting += new EventHandler(kernel_Selecting);
+            Kernel.CursorTypeChanged += new EventHandler(kernel_CursorTypeChanged);
+            Kernel.SetTool(ToolType.Line);
+        }
 
-            kernel.SetTool(ToolType.Line);
-        }                               
 
-        #endregion
-
-        #region event handler
-
+        #region 文档传递上来的事件处理
+        //----------------------------------------------------
+        // 文档传递上来的事件处理
+        //----------------------------------------------------
         private void kernal_FinalBitmapChanged(object sender, EventArgs e)
         {
             base.Invalidate();
@@ -80,7 +75,7 @@ namespace XPaint
 
         private void kernel_CursorTypeChanged(object sender, EventArgs e)
         {
-            switch (kernel.CursorType)
+            switch (Kernel.CursorType)
             {
                 case CursorType.Ellipse:
                     base.Cursor = XCursors.ToolEllipse;
@@ -121,116 +116,101 @@ namespace XPaint
 
         #endregion
 
-        #region override methods
+        #region 页面事件处理
 
+        //----------------------------------------------------
+        // 页面事件处理
+        //----------------------------------------------------
+        /// <summary>绘制背景（灰黑色）</summary>
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             base.OnPaintBackground(e);
             e.Graphics.FillRectangle(Brushes.LightGray, new Rectangle(Point.Empty, ClientSize));
         }
 
+        /// <summary>绘制（中间的画板）</summary>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.HighSpeed;
-            //
-            e.Graphics.TranslateTransform(AutoScrollPosition.X, AutoScrollPosition.Y);
-            e.Graphics.FillRectangle(Brushes.White, rectImage);
-            e.Graphics.DrawRectangle(Pens.DarkGray, rectImageOutLine);
-            e.Graphics.DrawImage(kernel.FinalBitmap, rectImage.Location);
-            e.Graphics.ResetTransform();
-            e.Graphics.TranslateTransform(
-                rectImage.Location.X + AutoScrollPosition.X,
-                rectImage.Location.Y + AutoScrollPosition.Y);
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.HighSpeed;
+
+            // 绘制白色背景、外框、图片（在图片坐标下绘制？）
+            g.TranslateTransform(AutoScrollPosition.X, AutoScrollPosition.Y);
+            g.FillRectangle(Brushes.White, _imageRect);
+            g.DrawRectangle(Pens.DarkGray, _frameRect);
+            g.DrawImage(Kernel.FinalBitmap, _imageRect.Location);
+            g.ResetTransform();
+
+            // 绘制选区、选择层（在屏幕坐标下绘制？）
+            g.TranslateTransform(
+                _imageRect.Location.X + AutoScrollPosition.X,
+                _imageRect.Location.Y + AutoScrollPosition.Y);
 
             // 绘制选择区域矩形
-            if (kernel.IsInSelecting)
-            {
-                kernel.DrawSelectingRect(e.Graphics);
-            }
-            // 绘制已选择对象矩形
-            if (kernel.SelectedShapesCount > 0)
-            {
-                kernel.DrawSizableRects(e.Graphics);
-            }
+            if (Kernel.IsInSelecting)
+                Kernel.DrawSelectingRect(g);
 
-            e.Graphics.ResetTransform();
+            // 绘制已选择对象矩形
+            if (Kernel.SelectedShapesCount > 0)
+                Kernel.DrawSizableRects(g);
+
+            g.ResetTransform();
         }
 
+        /// <summary>面板尺寸变更（重新计算画板的位置）</summary>
         protected override void OnResize(EventArgs eventargs)
         {
             base.OnResize(eventargs);
-            RecalculateCanvas();
+            RecalcCanvas();
         }
 
+        /// <summary>鼠标事件（传递给处理器）</summary>
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            kernel.MouseDown(TranslatePointForKernelImage(e.Location));
+            Kernel.MouseDown(ToImagePoint(e.Location));
         }
-
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            kernel.MouseMove(TranslatePointForKernelImage(e.Location));
+            Kernel.MouseMove(ToImagePoint(e.Location));
         }
-
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            kernel.MouseUp(TranslatePointForKernelImage(e.Location));
+            Kernel.MouseUp(ToImagePoint(e.Location));
         }
 
         #endregion
 
         #region private methods
 
-        private Point TranslatePointForKernelImage(Point pos)
+        //----------------------------------------------------
+        // 辅助方法
+        //----------------------------------------------------
+        /// <summary>将屏幕坐标转化为图片坐标</summary>
+        private Point ToImagePoint(Point point)
         {
-            pos.Offset(-rectImage.Location.X - AutoScrollPosition.X, 
-                -rectImage.Location.Y - AutoScrollPosition.Y);
-            return pos;
+            point.Offset(
+                -_imageRect.Location.X - AutoScrollPosition.X, 
+                -_imageRect.Location.Y - AutoScrollPosition.Y
+                );
+            return point;
         }
 
-        private void RecalculateCanvas()
+        /// <summary>重新计算画板参数</summary>
+        private void RecalcCanvas()
         {
-            int w = (ClientSize.Width - imageSize.Width) / 2;
-            int h = (ClientSize.Height - imageSize.Height) / 2;
-            int cw = Math.Max(w, CW);
-            int ch = Math.Max(h, CH);
-            canvasSizeActual = new Size(imageSize.Width + cw * 2, imageSize.Height + ch * 2);
-
-            rectImage = new Rectangle(new Point(cw, ch), imageSize);
-            rectImageOutLine = new Rectangle(cw - 1, ch - 1, imageSize.Width + 1, imageSize.Height + 1);
+            int dw = Math.Max(ClientSize.Width  - _imageSize.Width,  DW);  // 宽度差值
+            int dh = Math.Max(ClientSize.Height - _imageSize.Height, DH);  // 高度差值
+            //var canvasSize = new Size(_imageSize.Width + dw, _imageSize.Height + dh);   // 画板大小
+            _imageRect = new Rectangle(dw/2, dh/2, _imageSize.Width, _imageSize.Height);  // 图片区域（居中放置）
+            _frameRect = new Rectangle(dw/2 - 1, dh/2 - 1, _imageSize.Width + 1, _imageSize.Height + 1);  // 外框区域
         }
-
-        private void WhenImageSizeChanged()
-        {
-            canvasSizeMin = new Size(imageSize.Width + CW * 2, imageSize.Height + CH * 2);
-            base.AutoScrollMinSize = canvasSizeMin;
-        }
-
-        #endregion
-
-        #region private properties
-        
 
 
         #endregion
 
-        #region public properties
-
-        public XKernel Kernel
-        {
-            get { return kernel; }
-        }
-
-        #endregion
-
-        #region public methods
-
-
-
-        #endregion
     }
 }

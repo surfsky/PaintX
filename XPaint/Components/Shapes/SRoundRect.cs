@@ -7,36 +7,32 @@ namespace XPaint
     /// <summary>
     /// 圆角矩形（建议和 RectShape 直接合并）
     /// </summary>
-    public class RoundedRectShape : RectShape
+    public class SRoundRect : SRect
     {
-        #region private var
-
-        private byte[] types;
+        #region var
+        private byte[] _types;
         private RoundedRectProperty _pro;
+        public override ToolType Type => ToolType.RoundedRect;
+        public override string Name => "圆角矩形";
 
         #endregion
 
-        #region constructors & initial
+        #region constructors
 
-        public RoundedRectShape(XKernel container, RoundedRectProperty pro)
+        public SRoundRect(XKernel container, RoundedRectProperty pro)
             : base(container, pro)
         {
             _pro = pro;
-            initialValue(); 
-        }        
-
-        private void initialValue()
-        {
-            types = new byte[] { 0, 3, 3, 3, 1, 3, 3, 3, 1, 3, 3, 3, 1, 3, 3, 0x83 };
+            _types = new byte[] { 0, 3, 3, 3, 1, 3, 3, 3, 1, 3, 3, 3, 1, 3, 3, 0x83 };
         }
 
         #endregion
 
         #region private methods
 
-        private PointF[] getScaledPoints_Sides(PointF[] pf ,int draggedIndex, Point mousePos)
+        private PointF[] GetScaledPoints_Sides(PointF[] pf ,int draggedIndex, Point mousePos)
         {
-            PointF draggedPoint = SideAnchors[draggedIndex - 4];
+            PointF draggedPoint = SideKnobs[draggedIndex - 4];
             double angle = 0;
             switch (draggedIndex)
             {
@@ -73,88 +69,78 @@ namespace XPaint
             return pf;
         }
 
-        private PointF[] getScaledPoints_Corner(int draggedIndex, Point mousePos, bool shift)
+        private PointF[] GetScaledPoints_Corner(int draggedIndex, Point mousePos, bool shift)
         {
             int[] ex = new int[] { 7, 4, 4, 5, 5, 6, 6, 7 };
-            PointF[] pf = getScaledPoints_Sides(Path.PathPoints, ex[draggedIndex * 2], mousePos);
-            return getScaledPoints_Sides(pf, ex[draggedIndex * 2 + 1], mousePos);
+            PointF[] pf = GetScaledPoints_Sides(Path.PathPoints, ex[draggedIndex * 2], mousePos);
+            return GetScaledPoints_Sides(pf, ex[draggedIndex * 2 + 1], mousePos);
         }
 
         #endregion
 
-        #region public properties
 
-        public override ToolType Type
+        /// <summary>移动某个手柄</summary>
+        public override void MoveKnob(int index, Point newPt)
         {
-            get { return ToolType.RoundedRect; }
-        }
-
-        public override string Name
-        {
-            get { return "圆角矩形"; }
-        }
-
-        #endregion
-
-        public override void SetNewPosForHotAnchor(int index, Point newPos)
-        {
-            if (index == DraggableHotSpots.Length - 1)
+            if (index == Knobs.Length - 1)
             {
-                base.Rotate(newPos);
+                base.Rotate(newPt);
             }
             else
             {
                 PointF[] pf;
                 if (index > 3)
-                    pf = getScaledPoints_Sides(Path.PathPoints, index, newPos);
+                    pf = GetScaledPoints_Sides(Path.PathPoints, index, newPt);
                 else
-                    pf = getScaledPoints_Corner(index, newPos, false);
+                    pf = GetScaledPoints_Corner(index, newPt, false);
                 base.SetNewScaledPath(pf);
             }
-            LastTransformPoint = newPos;
+            LastPt = newPt;
         }        
 
         /// <summary>
         /// reset center point, rotate point, corner/side anchors, top/right side angle
         /// </summary>
-        protected override void ResetPathExtraInfo(TransformType transType)
+        protected override void SetKnobs(TransformType transType)
         {
-            PointF[] pf = base.Path.PathPoints;
+            PointF[] ps = base.Path.PathPoints;
             PointF[] corner = new PointF[4];
             PointF[] side = new PointF[4];
 
+            // 右边倾角
             if (transType == TransformType.Rotate)
-                RightSideAngle = Math.Atan2(pf[4].Y - pf[3].Y, pf[4].X - pf[3].X);
+                RightSideAngle = Math.Atan2(ps[4].Y - ps[3].Y, ps[4].X - ps[3].X);
 
+            // 4各顶点的坐标
             corner[0] = new PointF(
-                pf[3].X + (float)(_pro.RadiusTL * Math.Cos(RightSideAngle + Math.PI)),
-                pf[3].Y + (float)(_pro.RadiusTL * Math.Sin(RightSideAngle + Math.PI)));
-
+                ps[3].X + (float)(_pro.RadiusTL * Math.Cos(RightSideAngle + Math.PI)),
+                ps[3].Y + (float)(_pro.RadiusTL * Math.Sin(RightSideAngle + Math.PI)));
             corner[1] = new PointF(
-                pf[4].X + (float)(_pro.RadiusTR * Math.Cos(RightSideAngle)),
-                pf[4].Y + (float)(_pro.RadiusTR * Math.Sin(RightSideAngle)));
-
+                ps[4].X + (float)(_pro.RadiusTR * Math.Cos(RightSideAngle)),
+                ps[4].Y + (float)(_pro.RadiusTR * Math.Sin(RightSideAngle)));
             corner[2] = new PointF(
-                pf[11].X + (float)(_pro.RadiusBR * Math.Cos(RightSideAngle)),
-                pf[11].Y + (float)(_pro.RadiusBR * Math.Sin(RightSideAngle)));
-
+                ps[11].X + (float)(_pro.RadiusBR * Math.Cos(RightSideAngle)),
+                ps[11].Y + (float)(_pro.RadiusBR * Math.Sin(RightSideAngle)));
             corner[3] = new PointF(
-                pf[12].X + (float)(_pro.RadiusBL * Math.Cos(RightSideAngle + Math.PI)),
-                pf[12].Y + (float)(_pro.RadiusBL * Math.Sin(RightSideAngle + Math.PI)));
+                ps[12].X + (float)(_pro.RadiusBL * Math.Cos(RightSideAngle + Math.PI)),
+                ps[12].Y + (float)(_pro.RadiusBL * Math.Sin(RightSideAngle + Math.PI)));
 
+            // 4条边的中点坐标
             side[0] = new PointF((corner[0].X + corner[1].X) / 2, (corner[0].Y + corner[1].Y) / 2);
             side[1] = new PointF((corner[2].X + corner[1].X) / 2, (corner[2].Y + corner[1].Y) / 2);
             side[2] = new PointF((corner[2].X + corner[3].X) / 2, (corner[2].Y + corner[3].Y) / 2);
             side[3] = new PointF((corner[0].X + corner[3].X) / 2, (corner[0].Y + corner[3].Y) / 2);            
             
+            // 旋转点的坐标
             double angle = RightSideAngle + Math.PI / 2;
-            PointF rotatePoint = new PointF(
-                (float)(side[2].X + XConsts.RotatingRectOffset * Math.Cos(angle)),
-                (float)(side[2].Y + XConsts.RotatingRectOffset * Math.Sin(angle)));
-            base.RotateLocation = rotatePoint;
-            base.CenterPoint = new PointF((side[3].X + side[1].X) / 2, (side[0].Y + side[2].Y) / 2);
-            CornerAnchors = corner;
-            SideAnchors = side;
+            base.RotaterPt = new PointF(
+                (float)(side[2].X + XConsts.RotateRectOffset * Math.Cos(angle)),
+                (float)(side[2].Y + XConsts.RotateRectOffset * Math.Sin(angle)));
+
+            // 中心点的坐标
+            base.CenterPt = new PointF((side[3].X + side[1].X) / 2, (side[0].Y + side[2].Y) / 2);
+            CornerKnobs = corner;
+            SideKnobs = side;
         }
 
         protected override void AfterPropertyChanged(BaseProperty oldValue, BaseProperty newValue)
@@ -163,10 +149,11 @@ namespace XPaint
             base.AfterPropertyChanged(oldValue, newValue);
         }
 
-        protected override void ResetPath()
+        /// <summary>设置路径</summary>
+        protected override void SetPath()
         {
-            PointF[] pf = GetRoundedRectPath(_pro.RadiusAll, Rect.Location, new PointF(Rect.Right, Rect.Bottom));
-            base.SetNewScaledPath(pf, types);           
+            PointF[] pts = GetRoundedRectPath(_pro.RadiusAll, Rect.Location, new PointF(Rect.Right, Rect.Bottom));
+            base.SetNewScaledPath(pts, _types);           
         }
 
         public static PointF[] GetRoundedRectPath(int radius, PointF pt0, PointF pt2)

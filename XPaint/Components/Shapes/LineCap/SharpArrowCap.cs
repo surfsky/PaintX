@@ -12,12 +12,12 @@ namespace XPaint
         }
 
         public SharpArrowCap(float width, float height, float sharpIn)
-            : base(getFillPath(width,height, sharpIn), null)
+            : base(GetFillPath(width, height, sharpIn), null)
         {
             base.BaseInset = 2.0f;
         }
 
-        private static GraphicsPath getFillPath(float w, float h, float sharp)
+        private static GraphicsPath GetFillPath(float w, float h, float sharp)
         {
             GraphicsPath path = new GraphicsPath();
             PointF p1 = new PointF(0, 0);

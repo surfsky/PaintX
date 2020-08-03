@@ -7,12 +7,17 @@ namespace XPaint
     /// <summary>
     /// 可填冲的图形（如矩形）
     /// </summary>
-    public abstract class FillableShape : StrokableShape
+    public abstract class SFillable : SStrokable
     {
-        private Brush fill_brush;
+        private Brush fillBrush;
         private FillableProperty _pro;
+        protected Brush FillBrush
+        {
+            get { return fillBrush; }
+        }
 
-        public FillableShape(XKernel container, FillableProperty property)
+        //
+        public SFillable(XKernel container, FillableProperty property)
             :base(container, property)
         {
             _pro = property;
@@ -21,10 +26,10 @@ namespace XPaint
 
         private void SetNewBrush()
         {
-            if (fill_brush != null)
-                fill_brush.Dispose();
+            if (fillBrush != null)
+                fillBrush.Dispose();
 
-            fill_brush = new SolidBrush(_pro.FillColor);
+            fillBrush = new SolidBrush(_pro.FillColor);
         }
 
         protected override void AfterPropertyChanged(BaseProperty oldValue, BaseProperty newValue)
@@ -32,14 +37,6 @@ namespace XPaint
             base.AfterPropertyChanged(oldValue, newValue);
             _pro = (FillableProperty)newValue;
             SetNewBrush();
-        }
-
-        /// <summary>
-        /// 给后面的子类填充用
-        /// </summary>
-        protected Brush FillBrush
-        {
-            get { return fill_brush; }
         }
 
         public override void Draw(Graphics g)
@@ -60,8 +57,8 @@ namespace XPaint
 
         public override void Dispose()
         {            
-            if (fill_brush != null)
-                fill_brush.Dispose();
+            if (fillBrush != null)
+                fillBrush.Dispose();
 
             base.Dispose();
         }

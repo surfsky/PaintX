@@ -1,0 +1,345 @@
+
+------------------------------------------------
+废弃
+------------------------------------------------
+            //string[] s = _canvas.Kernel.ShapesInfoList;
+            //lbShapes.Items.Clear();
+            //if (s != null && s.Length > 0)
+            //    lbShapes.Items.AddRange(s);
+
+            //_canvas.Kernel.SetTool(ToolType.ShapeSelect);
+            //this.SelectTool(6);
+    
+        public string[] ShapesInfoList
+        {
+            get
+            {
+                if (Shapes.Count == 0)
+                    return new string[] { };
+
+                string[] list = new string[Shapes.Count];
+                for (int i = 0; i < Shapes.Count; i++)
+                {
+                    list[i] = i.ToString() + ": " + Shapes[i].ReadableName;
+                }
+                return list;
+            }
+        }
+
+            /*
+            List<byte[]> res = new List<byte[]>();
+            res.Add(Properties.Resources.pan);
+            res.Add(Properties.Resources.tool_line);
+            res.Add(Properties.Resources.tool_rect);
+            res.Add(Properties.Resources.tool_ellipse);
+            res.Add(Properties.Resources.rotate);
+            res.Add(Properties.Resources.size_0);
+            res.Add(Properties.Resources.size_90);
+            res.Add(Properties.Resources.select);
+            res.Add(Properties.Resources.select2);
+
+            List<Cursor> cursors = new List<Cursor>();
+            for (int i = 0; i < res.Count; i++)
+            {
+                using (var ms = new MemoryStream(res[i]))
+                {
+                    cursors.Add(new Cursor(ms));
+                }
+            }
+
+            _pan = cursors[0];
+            _line = cursors[1];
+            _rect = cursors[2];
+            _ellipse = cursors[3];
+            _rotate = cursors[4];
+            _size_0 = cursors[5];
+            _size_90 = cursors[6];
+            _select = cursors[7];
+            _select2 = cursors[8];
+            */
+
+            //_pan = new Cursor(typeof(Cursor), "pan");
+            //_line = new Cursor(typeof(Cursor), "tool_line");
+            //_rect = new Cursor(typeof(Cursor), "tool_rect");
+            //_ellipse = new Cursor(typeof(Cursor), "tool_ellipse");
+            //_rotate = new Cursor(typeof(Cursor), "rotate");
+            //_size_0 = new Cursor(typeof(Cursor), "size_0");
+            //_size_90 = new Cursor(typeof(Cursor), "size_90");
+            //_select = new Cursor(typeof(Cursor), "select");
+            //_select2 = new Cursor(typeof(Cursor), "select2");
+
+                    //--------------------------------------------
+        // 事件
+        //--------------------------------------------
+        // 最后的图片有变更
+        private static readonly object Event_FinalBitmapChanged = new object();
+        public event EventHandler FinalBitmapChanged
+        {
+            add { _events.AddHandler(Event_FinalBitmapChanged, value); }
+            remove { _events.RemoveHandler(Event_FinalBitmapChanged, value); }
+        }
+        protected virtual void OnFinalBitmapChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_FinalBitmapChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 选中的形状有变更
+        private static readonly object Event_SelectedShapesChanged = new object();
+        public event EventHandler SelectedShapesChanged
+        {
+            add { _events.AddHandler(Event_SelectedShapesChanged, value); }
+            remove { _events.RemoveHandler(Event_SelectedShapesChanged, value); }
+        }
+        protected virtual void OnSelectedShapesChanged(EventArgs e)
+        {
+            CheckShapeProperty();
+            EventHandler handler = (EventHandler)_events[Event_SelectedShapesChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 光标类型变更
+        private static readonly object Event_CursorTypeChanged = new object();
+        public event EventHandler CursorTypeChanged
+        {
+            add { _events.AddHandler(Event_CursorTypeChanged, value); }
+            remove { _events.RemoveHandler(Event_CursorTypeChanged, value); }
+        }
+        protected virtual void OnCursorTypeChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_CursorTypeChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 正在选择形状
+        private static readonly object Event_Selecting = new object();
+        public event EventHandler Selecting
+        {
+            add { _events.AddHandler(Event_Selecting, value); }
+            remove { _events.RemoveHandler(Event_Selecting, value); }
+        }
+        protected virtual void OnSelecting(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_Selecting];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 选中图形的属性有变更
+        private static readonly object Event_PropertyCollectorChanged = new object();
+        public event EventHandler PropertyCollectorChanged
+        {
+            add { _events.AddHandler(Event_PropertyCollectorChanged, value); }
+            remove { _events.RemoveHandler(Event_PropertyCollectorChanged, value); }
+        }
+        protected virtual void OnPropertyCollectorChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[Event_PropertyCollectorChanged];
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        // 图形列表有变更
+        private static readonly object _ShapesChanged = new object();
+        public event EventHandler ShapesChanged
+        {
+            add { _events.AddHandler(_ShapesChanged, value); }
+            remove { _events.RemoveHandler(_ShapesChanged, value); }
+        }
+        protected virtual void OnShapesChanged(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)_events[_ShapesChanged];
+            if (handler != null)
+                handler(this, e);
+        }
+
+                    this.rdoSelect.Tag = ToolType.Select;
+            this.rdoLine.Tag = ToolType.Line;
+            this.rdoRect.Tag = ToolType.Rect;
+            this.rdoRoundRect.Tag = ToolType.RoundedRect;
+            this.rdoEllipse.Tag = ToolType.Ellipse;
+            this.rdoArrow.Tag = ToolType.Arrow;
+            this.rdoPolyline.Tag = ToolType.Polyline;
+            rdoArrow.Checked = true;
+
+                    private void rdoTool_MouseDown(object sender, MouseEventArgs e)
+        {
+            var type = (ToolType)((Control)sender).Tag;
+            var json = new { ShapeType = type }.ToJson();
+            //_canvas.DoDragDrop(json, DragDropEffects.Move);
+        }
+
+        // 工具栏（形状）选择事件
+        private void rdoTool_CheckedChanged(object sender, EventArgs e)
+        {
+            var type = (ToolType)((Control)sender).Tag;
+            SelectTool(type);
+        }
+
+
+
+                    //this.rdoSelect.Checked = true;
+
+                                this.cmbPaintType.Items.AddRange(new object[] {
+            "仅描边",
+            "仅填充",
+            "描边及填充"});
+
+                        cmbPaintType.SelectedIndex = 0;
+
+                                        switch (ps.PaintType)
+                {
+                    case PaintType.Stroke:
+                        cmbPaintType.SelectedIndex = 0;
+                        break;
+                    case PaintType.Fill:
+                        cmbPaintType.SelectedIndex = 1;
+                        break;
+                    case PaintType.StrokeAndFill:
+                        cmbPaintType.SelectedIndex = 2;
+                        break;
+                }
+
+                                cmbPaintType.SelectedItem = ps.PaintType;
+
+                                            switch (cmbPaintType.SelectedIndex)
+            {
+                case 0:
+                    type = PaintType.Stroke;
+                    break;
+                case 1:
+                    type = PaintType.Fill;
+                    break;
+                case 2:
+                default:
+                    type = PaintType.StrokeAndFill;
+                    break;
+            }
+
+                            switch (ps.ArrowSize)
+                {
+                    case ArrowSize.Small:
+                        cmbArrowSize.SelectedIndex = 0;
+                        break;
+                    case ArrowSize.Medium:
+                        cmbArrowSize.SelectedIndex = 1;
+                        break;
+                    case ArrowSize.Large:
+                        cmbArrowSize.SelectedIndex = 2;
+                        break;
+                }
+            cmbArrowSize.SelectedIndex = 2;
+
+                        switch (cmbArrowSize.SelectedIndex)
+            {
+                case 0:
+                    size = ArrowSize.Small;
+                    break;
+                case 1:
+                    size = ArrowSize.Medium;
+                    break;
+                case 2:
+                default:
+                    size = ArrowSize.Large;
+                    break;
+            }
+
+                    {
+            get { return is_visible; }
+            set { is_visible = value; }
+        }
+
+                {
+            get { return is_locked; }
+            set { is_locked = value; }
+        }
+
+        {
+            get { return is_selected; }
+            set { is_selected = value; }
+        }
+
+        {
+            get { return is_increating; }
+            set { is_increating = value; }
+        }
+
+        public bool Selected { get; set; }
+            _preRefleshBounds = RectToReflesh;
+        {
+            get { return _preRefleshBounds; }
+            set { _preRefleshBounds = value; }
+        }
+
+        {
+            get { return _startPoint; }
+        }
+
+        {
+            get { return path; }
+        }
+
+        private bool is_increating;
+        private bool is_selected;
+        private bool is_locked;
+        private bool is_visible;
+        private Rectangle _preRefleshBounds;
+        private Point StartPt;
+            //is_visible = true;
+            //is_increating = true;
+
+                    public override Knob[] Knobs
+        {
+            get { return Knobs; }
+        }
+
+        public override Knob[] Knobs
+        {
+            get { return Knobs; }
+        }        
+
+        /// <summary>手柄列表</summary>
+        public override Knob[] Knobs { get; set;}
+        private Knob[] Knobs;
+
+        public override Rectangle RefreshRect
+        {
+            get
+            {
+                //Rectangle rect = base.RectToReflesh;
+                //rect.X -= 12;
+                //rect.Y -= 12;
+                //rect.Width += 24;
+                //rect.Height += 24;
+                //return rect;
+                return base.RefreshRect;
+            }
+        }
+
+        Size canvasSize;
+        Size canvasSizeMin;
+        XKernel Kernal;
+
+                private bool SelectShape(int shapeId)
+        {
+            return SelectShape(shapeId, true);
+        }
+
+        private void ClearSelectedShapes()
+        {
+            ClearSelectedShapes(true);
+        }
+

@@ -354,7 +354,7 @@ namespace XPaint
         private void Kernel_ShapesChanged(object sender, EventArgs e)
         {
             // 新增或删除形状后重新设为选择模式 surfsky 2020-07-10
-            this.lbShapes.SelectedIndex = -1;
+            this.lbTool.SelectedIndex = 0;
             ShowShapes();
             ShowSelectedShapes();
         }
